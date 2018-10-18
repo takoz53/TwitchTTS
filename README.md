@@ -57,3 +57,4 @@ Then I'd recommend you checking if your Twitch ID is lowercase, your channel is 
 
 ## That's it!
 If something is to be added to the Readme, please create an Issue, describing what is needed! Thank you.
+Also, I apologize for bad code. Sorry! :D
