@@ -18,7 +18,7 @@ namespace TextToSpeechTTV
         Config config;
         SpeechWordHandler speechWordHandler;
         SpeechHelper speechHelper;
-
+        
         //Set some defaults
         int maxWordLength = 100;
         string messageConnector = "said";

@@ -9,24 +9,84 @@ namespace TextToSpeechTTV
 {
     class Config
     {
-        private string oauth = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "creds.txt");
+        //Path for every Config
+        private string creds = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "creds.txt");
         private string options = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "options.txt");
+        private string blocklist = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
+        private string badwords = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "badwords.txt");
+        private string usernames = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.txt");
+        private string foldername = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config");
+
+        public Config()
+        {
+            CreateConfig();
+        }
+
+        private void CreateConfig()
+        {
+            if (Directory.Exists(foldername))
+                return;
+
+            if (!Directory.Exists(foldername))
+                Directory.CreateDirectory(foldername);
+            if (!File.Exists(options))
+                FillOptionsFile();
+            if (!File.Exists(blocklist))
+                File.Create(blocklist);
+            if (!File.Exists(badwords))
+                File.Create(badwords);
+            if (!File.Exists(usernames))
+                File.Create(usernames);
+            if (!File.Exists(creds))
+                FillCredsFile();
+            Console.WriteLine("Created config File. Please set up your creds and settings!");
+            Console.ReadLine();
+            Environment.Exit(0);
+            
+        }
+
+        private void FillCredsFile()
+        {
+            File.WriteAllLines(creds, new string[] {
+                "Twitch ID (lowercase):",
+                "yourbotname",
+                "OAUTH (Twitch TMI):",
+                "oauth:youroauthkey",
+                "Channel(lowercase):",
+                "yourchannelname" });
+        }
+
+        private void FillOptionsFile()
+        {
+            File.WriteAllLines(options, new string[] {
+                "Set TTS Voice:",
+                "Microsoft David Desktop",
+                "Set Message Connector:",
+                "said",
+                "Maximum allowed Characters, 0 for no limit:",
+                "100",
+                "Replace swear word with:",
+                "beep",
+                "Say this, if long Sentence:",
+                "to be continued"
+            });
+        }
 
         public string GetUsername()
         {
-            string id = File.ReadAllLines(oauth)[1];
+            string id = File.ReadAllLines(creds)[1];
             return id;
         }
 
         public string GetOAuth()
         {
-            string password = File.ReadAllLines(oauth)[3];
+            string password = File.ReadAllLines(creds)[3];
             return password;
         }
 
         public string GetChannel()
         {
-            string channel = File.ReadAllLines(oauth)[5];
+            string channel = File.ReadAllLines(creds)[5];
             return channel;
         }
 
