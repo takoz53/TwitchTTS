@@ -3,7 +3,7 @@ A TTS reading out Twitch chat loud with multiple settings you'll be able to chan
 
 
 ## Download TwitchTTS
-Here you go (coming soon!)
+### [Click here](https://puu.sh/BNn9D/62bd392236.rar)
 
 ## Donate via Paypal
 I'd really appreciate Donations, so if you're extra-nice, you might want to give a donation to your hearts extent! Thank you!
@@ -22,7 +22,7 @@ You'll also need TwitchLib available on NuGet and you're good to go.
     1. Create an [OAuth Key](https://twitchapps.com/tmi/) and enter your Key below "Oauth:"
     1. Set the channel, where it should connect to (**all lowercase!**)
 1. Open up the .exe and check what voices your PC Supports (It'll be shown inside the Console)
-    1. Copy a voice its name **(Care lower & uppercase)** and put it in your Config it's creds.txt its "voice" and set your locale like en-US
+    1. Copy a voice its name **(Care lower & uppercase)** and put it in your Config it's options.txt its "voice"
 1. Set Max-Letters Length, which should be Displayed (After for example 40 Letters, the bot will say "to be continued")
     1. To read out everything until the end, leave the Setting at 0.
 1. Run the program, type something in your Chat and it should be working.
@@ -56,6 +56,23 @@ Then you fucked up at creds.txt, by probably typing in the Voicename wrongly, ch
 
 Then I'd recommend you checking if your Twitch ID is lowercase, your channel is lowercase and the oauth key is right.
 
+### What can I customize?
+
+1. Maximum allowed characters
+1. Sentence, if maximum allowed characters are **exceeded**
+1. Message connector
+    1. **Example:** "takoz5334 said hello" can be changed to "takoz5334 speaks hello" or into any other language etc.
+1. Swearword replacing word, default is "beep" when something bad is written.
+1. The TTS Voice
+
+### How do I block users?
+
+Just write their name down in the blocklist, press enter and write another name in. Simple? Yes.
+
+### How do I give users nicknames
+
+Just like in blocklist, go to usernames and assign each user a name, e.g. takoz53=taco xxswordmasterxx=swordmaster.
+Just note down, that the names **have to** be written in lowercase.
 
 ## That's it!
 If something is to be added to the Readme, please create an Issue, describing what is needed! Thank you.
