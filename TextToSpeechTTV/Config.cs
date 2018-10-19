@@ -10,6 +10,7 @@ namespace TextToSpeechTTV
     class Config
     {
         private string oauth = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "creds.txt");
+        private string options = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "options.txt");
 
         public string GetUsername()
         {
@@ -31,21 +32,27 @@ namespace TextToSpeechTTV
 
         public string SetVoice()
         {
-            string voice = File.ReadAllLines(oauth)[7];
+            string voice = File.ReadAllLines(options)[1];
             return voice;
         }
-        public string SetLocale()
+        public string SetMessageConnector()
         {
-            string locale = File.ReadAllLines(oauth)[9];
-            return locale;
+            string say = File.ReadAllLines(options)[3];
+            return say;
         }
 
-        public int GetMaxWordLength()
+        public int GetMaxCharacterLength()
         {
             int result = 0;
-            string wordLength = File.ReadAllLines(oauth)[11];
+            string wordLength = File.ReadAllLines(options)[5];
             int.TryParse(wordLength, out result);
             return result;
+        }
+
+        public string ReplaceSwearWord()
+        {
+            string antiswear = File.ReadAllLines(options)[7];
+            return antiswear;
         }
     }
 }

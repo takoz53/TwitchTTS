@@ -8,7 +8,6 @@ using TwitchLib.Client;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Extensions;
 using TwitchLib.Client.Models;
-using DarrenLee.SpeechSynthesis;
 using System.Text.RegularExpressions;
 
 namespace TextToSpeechTTV
@@ -18,20 +17,26 @@ namespace TextToSpeechTTV
         TwitchClient client;
         Config config;
         SpeechWordHandler speechWordHandler;
-        int maxWordLength = 0;
-        string locale = "";
-        string voice = "";
+        SpeechHelper speechHelper;
+
+        //Set some defaults
+        int maxWordLength = 100;
+        string messageConnector = "said";
+        string voice = "Microsoft David Desktop";
+        string antiswear = "beep";
+
         public TwitchBot()
         {
 
             //Set up Config Informations
             config = new Config();
-            maxWordLength = config.GetMaxWordLength();
-            locale = config.SetLocale();
+            maxWordLength = config.GetMaxCharacterLength();
+            messageConnector = config.SetMessageConnector();
+            antiswear = config.ReplaceSwearWord();
             voice = config.SetVoice();
 
             //Set up Speech Helper
-            SpeechHelper.Rate = 0;
+            speechHelper = new SpeechHelper(voice, 0);
             speechWordHandler = new SpeechWordHandler();
             //Show all available voices to users
             List<string> voices = SpeechHelper.GetAllInstalledVoices();
@@ -58,13 +63,13 @@ namespace TextToSpeechTTV
         private void OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
             Console.WriteLine($"Successfully joined {e.Channel} Channel.");
-            client.SendMessage(e.Channel, "TTS by takoz5334 successfully joined channel");
+            client.SendMessage(e.Channel, "TTS successfully joined the channel. This is a confirmation message!");
         }
 
         private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
 
-            Console.WriteLine(e.ChatMessage.Username + " said " + e.ChatMessage.Message);
+            Console.WriteLine($"{e.ChatMessage.Username}:  {e.ChatMessage.Message}");
 
             string newUsername = speechWordHandler.ContainsUsername(e.ChatMessage.Username);
 
@@ -94,26 +99,20 @@ namespace TextToSpeechTTV
             if (badWords.Count != 0) //Check if containing bad words
             {
                 for (int i = 0; i < badWords.Count; i++)
-                    newMessageEdited = newMessageEdited.Replace(badWords.ElementAt(i), "beep");
+                    newMessageEdited = newMessageEdited.Replace(badWords.ElementAt(i), antiswear);
             }
             if (maxWordLength <= newMessageEdited.Length && maxWordLength != 0) //Check if Sentence is too long
             {
                 newMessageEdited = newMessageEdited.Substring(0, Math.Min(newMessageEdited.Length, maxWordLength)) + "....... to be continued.";
-                Speak(newUsername + " said " + newMessageEdited);
+                speechHelper.Speak($"{newUsername} {messageConnector} {newMessageEdited}");
             }
             else
-                Speak(newUsername + " said " + newMessageEdited);
+                speechHelper.Speak($"{newUsername} {messageConnector} {newMessageEdited}");
         }
-
+            
         private void OnNewSubscriber(object sender, OnNewSubscriberArgs e)
         {
             client.SendMessage(e.Channel, $"{e.Subscriber.DisplayName} thank you for subbing! Much love <3 PogChamp");
-            Speak($"{e.Subscriber.DisplayName} thank you for Subscribing, I love you!");
-        }
-
-        private void Speak(string text) //Shorten SpeechHelper Function
-        {
-            SpeechHelper.Speak(locale, voice, text);
         }
     }
 }
