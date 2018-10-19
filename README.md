@@ -7,13 +7,15 @@ Here you go (coming soon!)
 
 ## Donate via Paypal
 I'd really appreciate Donations, so if you're extra-nice, you might want to give a donation to your hearts extent! Thank you!
-(coming when releasing the program! :P, Still got some problems!)
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XAJJTAVXE4P8C)
+
 
 ## How to set up as developer?
 You'll need the [DLL](https://puu.sh/BNfss/1c444104df.dll) for the SpeechHelper for TTS and add it as Reference in VS.
 You'll also need TwitchLib available on NuGet and you're good to go.
 
-## How to set up as user?
+## How to set up as user? (Windows Only!)
 1. Download the Program and extract
 1. Go into Config and open up creds.txt
     1. Set up your Bot-Account ID and enter your ID below "ID:"(Just create a Twitch Account, **all lowercase!**)
