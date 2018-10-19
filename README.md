@@ -12,7 +12,7 @@ I'd really appreciate Donations, so if you're extra-nice, you might want to give
 
 
 ## How to set up as developer?
-You'll need the [DLL](https://puu.sh/BNfss/1c444104df.dll) for the SpeechHelper for TTS and add it as Reference in VS.
+You'll (maybe?) need to add System.Speech available on your System as Reference
 You'll also need TwitchLib available on NuGet and you're good to go.
 
 ## How to set up as user? (Windows Only!)
