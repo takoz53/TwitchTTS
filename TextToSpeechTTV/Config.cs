@@ -54,5 +54,11 @@ namespace TextToSpeechTTV
             string antiswear = File.ReadAllLines(options)[7];
             return antiswear;
         }
+
+        public string GetLongMessage()
+        {
+            string longMessage = File.ReadAllLines(options)[9];
+            return longMessage;
+        }
     }
 }

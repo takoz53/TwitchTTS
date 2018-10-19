@@ -24,7 +24,7 @@ namespace TextToSpeechTTV
         string messageConnector = "said";
         string voice = "Microsoft David Desktop";
         string antiswear = "beep";
-
+        string longMessage = "to be continued";
         public TwitchBot()
         {
 
@@ -34,6 +34,7 @@ namespace TextToSpeechTTV
             messageConnector = config.SetMessageConnector();
             antiswear = config.ReplaceSwearWord();
             voice = config.SetVoice();
+            longMessage = config.GetLongMessage();
 
             //Set up Speech Helper
             speechHelper = new SpeechHelper(voice, 0);
@@ -103,7 +104,7 @@ namespace TextToSpeechTTV
             }
             if (maxWordLength <= newMessageEdited.Length && maxWordLength != 0) //Check if Sentence is too long
             {
-                newMessageEdited = newMessageEdited.Substring(0, Math.Min(newMessageEdited.Length, maxWordLength)) + "....... to be continued.";
+                newMessageEdited = newMessageEdited.Substring(0, Math.Min(newMessageEdited.Length, maxWordLength)) + "....... " + longMessage;
                 speechHelper.Speak($"{newUsername} {messageConnector} {newMessageEdited}");
             }
             else
