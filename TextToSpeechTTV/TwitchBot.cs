@@ -23,15 +23,22 @@ namespace TextToSpeechTTV
         string voice = "";
         public TwitchBot()
         {
+
+            //Set up Config Informations
             config = new Config();
             maxWordLength = config.GetMaxWordLength();
             locale = config.SetLocale();
             voice = config.SetVoice();
 
+            //Set up Speech Helper
             SpeechHelper.Rate = 0;
             speechWordHandler = new SpeechWordHandler();
-           
+            //Show all available voices to users
+            List<string> voices = SpeechHelper.GetAllInstalledVoices();
+            foreach (string s in voices)
+                Console.WriteLine(s);
 
+            //Set up Twitch Info
             ConnectionCredentials credentials = new ConnectionCredentials(config.GetUsername(), config.GetOAuth());
             
             client = new TwitchClient();
@@ -41,15 +48,12 @@ namespace TextToSpeechTTV
             client.OnMessageReceived += OnMessageReceived;
             client.OnNewSubscriber += OnNewSubscriber;
 
-
+            //Log in Twitch
             client.Connect();
         }
         private void OnConnected(object sender, OnConnectedArgs e)
         {
             Console.WriteLine($"Connected to {e.AutoJoinChannel}");
-            List<string> voices = SpeechHelper.GetAllInstalledVoices();
-            foreach (string s in voices)
-                Console.WriteLine(s);
         }
         private void OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
@@ -64,11 +68,11 @@ namespace TextToSpeechTTV
 
             string newUsername = speechWordHandler.ContainsUsername(e.ChatMessage.Username);
 
-            if (e.ChatMessage.Username == e.ChatMessage.BotUsername)
+            if (e.ChatMessage.Username == e.ChatMessage.BotUsername) //Ignore TTS-Bot.
                 return;
-            if (speechWordHandler.CheckBlocked(e.ChatMessage.Username))
+            if (speechWordHandler.CheckBlocked(e.ChatMessage.Username)) //Ignore blocked users
                 return;
-            if (e.ChatMessage.Message.StartsWith("!"))
+            if (e.ChatMessage.Message.StartsWith("!")) //Ignore Commands starting with !
                 return;
 
             //Check if URL is in Message
@@ -85,14 +89,14 @@ namespace TextToSpeechTTV
 
             string newMessageEdited = e.ChatMessage.Message;
 
-            if(url.Success)
+            if(url.Success) //Check if contains URL
                 newMessageEdited = e.ChatMessage.Message.Replace(url.Value, "url");
-            if (badWords.Count != 0)
+            if (badWords.Count != 0) //Check if containing bad words
             {
                 for (int i = 0; i < badWords.Count; i++)
                     newMessageEdited = newMessageEdited.Replace(badWords.ElementAt(i), "beep");
             }
-            if (maxWordLength <= newMessageEdited.Length && maxWordLength != 0)
+            if (maxWordLength <= newMessageEdited.Length && maxWordLength != 0) //Check if Sentence is too long
             {
                 newMessageEdited = newMessageEdited.Substring(0, Math.Min(newMessageEdited.Length, maxWordLength)) + "....... to be continued.";
                 Speak(newUsername + " said " + newMessageEdited);
@@ -107,7 +111,7 @@ namespace TextToSpeechTTV
             Speak($"{e.Subscriber.DisplayName} thank you for Subscribing, I love you!");
         }
 
-        private void Speak(string text)
+        private void Speak(string text) //Shorten SpeechHelper Function
         {
             SpeechHelper.Speak(locale, voice, text);
         }

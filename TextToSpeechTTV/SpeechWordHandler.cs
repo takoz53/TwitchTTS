@@ -12,15 +12,16 @@ namespace TextToSpeechTTV
         private string badWordsLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "badwords.txt");
         private string usernameRecognitionLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.txt");
         private string blockListLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
-        private string prefWordsLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "prefWords.txt");
+
         private List<string> badWords;
 
         public SpeechWordHandler()
         {
+            //Load bad words only once, because there are many and might cause performance issues, rather save them on a List.
             LoadBadWords();
         }
 
-        private void LoadBadWords()
+        private void LoadBadWords() //Get all bad words and add them to the badWords list.
         {
             badWords = new List<string>();
             string[] badwords = File.ReadAllLines(badWordsLocation);
@@ -28,7 +29,7 @@ namespace TextToSpeechTTV
                 badWords.Add(s);
         }
 
-        public List<string> ContainsBadWord(string text)
+        public List<string> ContainsBadWord(string text) //Check if sentence contains a bad word
         {
             List<string> wordsFound = new List<string>();
             foreach(string s in badWords)
@@ -41,7 +42,7 @@ namespace TextToSpeechTTV
             return wordsFound;
         }
 
-        public string ContainsUsername(string username)
+        public string ContainsUsername(string username) //Check if username is in usernames list and return new nickname
         {
             List<string> usernames = File.ReadAllLines(usernameRecognitionLocation).ToList();
             List<string> availableNames = new List<string>();
@@ -59,7 +60,7 @@ namespace TextToSpeechTTV
             return username;
         }
 
-        public bool CheckBlocked(string username)
+        public bool CheckBlocked(string username) //Check if user is blocked
         {
             List<string> usernames = File.ReadAllLines(blockListLocation).ToList();
             if (usernames.Contains(username))
