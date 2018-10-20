@@ -32,19 +32,40 @@ namespace TextToSpeechTTV
             if (!File.Exists(options))
                 FillOptionsFile();
             if (!File.Exists(blocklist))
-                File.Create(blocklist);
+                FillBlocklistExamples();
             if (!File.Exists(badwords))
                 File.Create(badwords);
             if (!File.Exists(usernames))
-                File.Create(usernames);
+                FillUsernamesExamples();
             if (!File.Exists(creds))
                 FillCredsFile();
+
             Console.WriteLine("Created config File. Please set up your creds and settings!");
             Console.ReadLine();
             Environment.Exit(0);
             
         }
 
+        private void FillUsernamesExamples()
+        {
+            File.WriteAllLines(usernames, new string[]
+            {
+                "drdisrespectlive=doctor disrespect",
+                "loltyler1=tyler 1",
+                "riot games=rito"
+            });
+        }
+        private void FillBlocklistExamples()
+        {
+            File.WriteAllLines(usernames, new string[]
+            {
+                "nightbot",
+                "moobot",
+                "phantombot",
+                "coebot",
+                "deepbot"
+            });
+        }
         private void FillCredsFile()
         {
             File.WriteAllLines(creds, new string[] {
