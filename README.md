@@ -3,7 +3,7 @@ A TTS reading out Twitch chat loud with multiple settings you'll be able to chan
 
 
 ## Download TwitchTTS
-### [Click here](https://puu.sh/BNn9D/62bd392236.rar)
+### [Click here](https://puu.sh/BPBo2/6b6b69dbcd.rar)
 
 ## Donate via Paypal
 I'd really appreciate Donations, so if you're extra-nice, you might want to give a donation to your hearts extent! Thank you!
