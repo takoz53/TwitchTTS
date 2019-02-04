@@ -57,7 +57,7 @@ namespace TextToSpeechTTV
         }
         private void FillBlocklistExamples()
         {
-            File.WriteAllLines(usernames, new string[]
+            File.WriteAllLines(blocklist, new string[]
             {
                 "nightbot",
                 "moobot",
