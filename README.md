@@ -3,7 +3,7 @@ A TTS reading out Twitch chat loud with multiple settings you'll be able to chan
 
 
 ## Download TwitchTTS
-### [Click here](https://puu.sh/BPBo2/6b6b69dbcd.rar)
+### [Click here](https://mega.nz/#!zkUk2C5a!y4zxfTu4DbxUMgLAAP5flxnBW6od-fHFTxxgOLbEohc)
 
 ## Donate via Paypal
 I'd really appreciate Donations, so if you're extra-nice, you might want to give a donation to your hearts extent! Thank you!
@@ -74,6 +74,8 @@ Just write their name down in the blocklist, press enter and write another name 
 Just like in blocklist, go to usernames and assign each user a name, e.g. takoz53=taco xxswordmasterxx=swordmaster.
 Just note down, that the names **have to** be written in lowercase.
 
+### Can I block and unblock users from chat?
+Yeah, definitely. You can by typing !block username and !unblock username. It'll do the checks whether the user is blocked and input is correct, so don't worry about typing something wrong.
 ## That's it!
 If something is to be added to the Readme, please create an Issue, describing what is needed! Thank you.
 Also, I apologize for bad code. Sorry! :D
