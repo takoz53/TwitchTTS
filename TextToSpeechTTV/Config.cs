@@ -20,6 +20,16 @@ namespace TextToSpeechTTV
         public Config()
         {
             CreateConfig();
+
+            if (GetOAuth() == "oauth:youroauthkey")
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Your OAuth Key hasn't been set! Can't connect anywhere without setting it.");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine("Press any key to quit...");
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
         }
 
         private void CreateConfig()
@@ -40,8 +50,8 @@ namespace TextToSpeechTTV
             if (!File.Exists(creds))
                 FillCredsFile();
 
-            Console.WriteLine("Created config File. Please set up your creds and settings!");
-            Console.ReadLine();
+            Console.WriteLine("Created config File. Please set up your creds and settings!\nPress any key to quit...");
+            Console.ReadKey();
             Environment.Exit(0);
             
         }

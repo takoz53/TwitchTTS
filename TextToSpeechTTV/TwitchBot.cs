@@ -64,22 +64,42 @@ namespace TextToSpeechTTV
         private void OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
             Console.WriteLine($"Successfully joined {e.Channel} Channel.");
-            client.SendMessage(e.Channel, "TTS successfully joined the channel. This is a confirmation message!");
         }
 
         private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
+            CommandHandler commandHandler = new CommandHandler();
 
-            Console.WriteLine($"{e.ChatMessage.Username}:  {e.ChatMessage.Message}");
-
+            Console.WriteLine($"{e.ChatMessage.Username}:{e.ChatMessage.Message}");
             string newUsername = speechWordHandler.ContainsUsername(e.ChatMessage.Username);
 
             if (e.ChatMessage.Username == e.ChatMessage.BotUsername) //Ignore TTS-Bot.
                 return;
             if (speechWordHandler.CheckBlocked(e.ChatMessage.Username)) //Ignore blocked users
                 return;
+            if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
+            {
+                if (e.ChatMessage.Message.StartsWith("!block"))
+                {
+                    bool blocked = commandHandler.blockUser(e.ChatMessage.Message);
+                    if (blocked)
+                        client.SendMessage(config.GetChannel(), "The user has been successfully blocked.");
+                    else
+                        client.SendMessage(config.GetChannel(), "The user is already blocked or the input was wrong.");
+                }
+                else if (e.ChatMessage.Message.StartsWith("!unblock"))
+                {
+                    bool unblocked = commandHandler.unblockUser(e.ChatMessage.Message);
+                    if (unblocked)
+                        client.SendMessage(config.GetChannel(), "The user has been successfully unblocked.");
+                    else
+                        client.SendMessage(config.GetChannel(), "The user isn't blocked or the input was wrong.");
+                }
+                return;
+            }
             if (e.ChatMessage.Message.StartsWith("!")) //Ignore Commands starting with !
                 return;
+
 
             //Check if URL is in Message
             Regex UrlMatch = new Regex(@"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?");

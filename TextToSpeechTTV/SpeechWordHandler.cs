@@ -67,5 +67,10 @@ namespace TextToSpeechTTV
                 return true;
             return false;
         }
+
+        public string GetBlockListLocation()
+        {
+            return blockListLocation;
+        }
     }
 }
