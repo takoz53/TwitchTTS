@@ -14,7 +14,7 @@ namespace TextToSpeechTTV
 
         }
 
-        public bool blockUser(string message)
+        public bool BlockUser(string message)
         {
             SpeechWordHandler speechWordHandler = new SpeechWordHandler();
             string[] messages;
@@ -30,11 +30,11 @@ namespace TextToSpeechTTV
             if (speechWordHandler.CheckBlocked(user))
                 return false;
 
-            File.AppendAllLines(speechWordHandler.GetBlockListLocation(), new string[] { user });
+            File.AppendAllLines(speechWordHandler.GetBlockListLocation(), new string[] {"\n" , user });
             return true;
         }
 
-        public bool unblockUser(string message)
+        public bool UnblockUser(string message)
         {
             SpeechWordHandler speechWordHandler = new SpeechWordHandler();
             string[] messages;

@@ -10,12 +10,12 @@ namespace TextToSpeechTTV
     class Config
     {
         //Path for every Config
-        private string creds = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "creds.txt");
-        private string options = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "options.txt");
-        private string blocklist = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
-        private string badwords = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "badwords.txt");
-        private string usernames = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.txt");
-        private string foldername = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config");
+        private readonly string creds = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "creds.txt");
+        private readonly string options = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "options.txt");
+        private readonly string blocklist = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
+        private readonly string badwords = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "badwords.txt");
+        private readonly string usernames = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.txt");
+        private readonly string foldername = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config");
 
         public Config()
         {
@@ -134,9 +134,8 @@ namespace TextToSpeechTTV
 
         public int GetMaxCharacterLength()
         {
-            int result = 0;
             string wordLength = File.ReadAllLines(options)[5];
-            int.TryParse(wordLength, out result);
+            int.TryParse(wordLength, out int result);
             return result;
         }
 

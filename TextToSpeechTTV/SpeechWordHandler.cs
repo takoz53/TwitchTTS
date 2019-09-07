@@ -9,9 +9,9 @@ namespace TextToSpeechTTV
 {
     class SpeechWordHandler
     {
-        private string badWordsLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "badwords.txt");
-        private string usernameRecognitionLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.txt");
-        private string blockListLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
+        private static string badWordsLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "badwords.txt");
+        private static string usernameRecognitionLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.txt");
+        private static string blockListLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
 
         private List<string> badWords;
 
@@ -25,8 +25,7 @@ namespace TextToSpeechTTV
         {
             badWords = new List<string>();
             string[] badwords = File.ReadAllLines(badWordsLocation);
-            foreach (string s in badwords)
-                badWords.Add(s);
+            badWords.AddRange(badwords);
         }
 
         public List<string> ContainsBadWord(string text) //Check if sentence contains a bad word

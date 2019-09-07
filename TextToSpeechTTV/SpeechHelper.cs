@@ -11,13 +11,15 @@ namespace TextToSpeechTTV
 {
     class SpeechHelper
     {
-        SpeechSynthesizer speechSynthesizer;
+        private SpeechSynthesizer speechSynthesizer;
 
         public SpeechHelper(string ttsName, int rate)
         {
-            speechSynthesizer = new SpeechSynthesizer();
+            speechSynthesizer = new SpeechSynthesizer
+            {
+                Rate = rate
+            };
 
-            speechSynthesizer.Rate = rate;
             try
             {
                 speechSynthesizer.SelectVoice(ttsName);
@@ -55,7 +57,12 @@ namespace TextToSpeechTTV
 
         public void Speak(string text)
         {
-                speechSynthesizer.Speak(text);
+            speechSynthesizer.Speak(text);
+        }
+
+        public string GetCurrentVoice()
+        {
+            return speechSynthesizer.Voice.Description;
         }
     }
 }

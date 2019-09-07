@@ -14,17 +14,18 @@ namespace TextToSpeechTTV
 {
     class TwitchBot
     {
-        TwitchClient client;
-        Config config;
-        SpeechWordHandler speechWordHandler;
-        SpeechHelper speechHelper;
+        private TwitchClient client;
+        private Config config;
+        private SpeechWordHandler speechWordHandler;
+        private SpeechHelper speechHelper;
         
         //Set some defaults
-        int maxWordLength = 100;
-        string messageConnector = "said";
-        string voice = "Microsoft David Desktop";
-        string antiswear = "beep";
-        string longMessage = "to be continued";
+        private int maxWordLength = 100;
+        private string messageConnector = "said";
+        private string voice = "Microsoft David Desktop";
+        private string antiswear = "beep";
+        private string longMessage = "to be continued";
+
         public TwitchBot()
         {
 
@@ -41,9 +42,12 @@ namespace TextToSpeechTTV
             speechWordHandler = new SpeechWordHandler();
             //Show all available voices to users
             List<string> voices = SpeechHelper.GetAllInstalledVoices();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("All available voices: ");
+            Console.ForegroundColor = ConsoleColor.Gray;
             foreach (string s in voices)
                 Console.WriteLine(s);
-
+            Console.WriteLine("----------------------------------------------------------------");
             //Set up Twitch Info
             ConnectionCredentials credentials = new ConnectionCredentials(config.GetUsername(), config.GetOAuth());
             
@@ -59,11 +63,20 @@ namespace TextToSpeechTTV
         }
         private void OnConnected(object sender, OnConnectedArgs e)
         {
-            Console.WriteLine($"Connected to {e.AutoJoinChannel}");
+            Console.Write($"Connected to ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(e.AutoJoinChannel);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write("Currently using voice: ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(speechHelper.GetCurrentVoice());
+            Console.ForegroundColor = ConsoleColor.Gray;
         }
         private void OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
-            Console.WriteLine($"Successfully joined {e.Channel} Channel.");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"Successfully joined Channel: {e.Channel}");
+            Console.ForegroundColor = ConsoleColor.Gray;
         }
 
         private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
@@ -81,7 +94,7 @@ namespace TextToSpeechTTV
             {
                 if (e.ChatMessage.Message.StartsWith("!block"))
                 {
-                    bool blocked = commandHandler.blockUser(e.ChatMessage.Message);
+                    bool blocked = commandHandler.BlockUser(e.ChatMessage.Message);
                     if (blocked)
                         client.SendMessage(config.GetChannel(), "The user has been successfully blocked.");
                     else
@@ -89,7 +102,7 @@ namespace TextToSpeechTTV
                 }
                 else if (e.ChatMessage.Message.StartsWith("!unblock"))
                 {
-                    bool unblocked = commandHandler.unblockUser(e.ChatMessage.Message);
+                    bool unblocked = commandHandler.UnblockUser(e.ChatMessage.Message);
                     if (unblocked)
                         client.SendMessage(config.GetChannel(), "The user has been successfully unblocked.");
                     else
@@ -133,7 +146,7 @@ namespace TextToSpeechTTV
             
         private void OnNewSubscriber(object sender, OnNewSubscriberArgs e)
         {
-            client.SendMessage(e.Channel, $"{e.Subscriber.DisplayName} thank you for subbing! Much love <3 PogChamp");
+            speechHelper.Speak($"{e.Subscriber.DisplayName} thank you for subbing! Much love <3");
         }
     }
 }
