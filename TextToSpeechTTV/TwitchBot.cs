@@ -56,7 +56,7 @@ namespace TextToSpeechTTV
             client.OnConnected += OnConnected;
             client.OnJoinedChannel += OnJoinedChannel;
             client.OnMessageReceived += OnMessageReceived;
-            client.OnNewSubscriber += OnNewSubscriber;
+
 
             //Log in Twitch
             client.Connect();
@@ -88,8 +88,7 @@ namespace TextToSpeechTTV
 
             if (e.ChatMessage.Username == e.ChatMessage.BotUsername) //Ignore TTS-Bot.
                 return;
-            if (speechWordHandler.CheckBlocked(e.ChatMessage.Username)) //Ignore blocked users
-                return;
+
             if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
             {
                 if (e.ChatMessage.Message.StartsWith("!block"))
@@ -108,11 +107,12 @@ namespace TextToSpeechTTV
                     else
                         client.SendMessage(config.GetChannel(), "The user isn't blocked or the input was wrong.");
                 }
-                return;
             }
+
+            if (speechWordHandler.CheckBlocked(e.ChatMessage.Username)) //Ignore blocked users
+                return;
             if (e.ChatMessage.Message.StartsWith("!")) //Ignore Commands starting with !
                 return;
-
 
             //Check if URL is in Message
             Regex UrlMatch = new Regex(@"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?");
@@ -128,8 +128,11 @@ namespace TextToSpeechTTV
 
             string newMessageEdited = e.ChatMessage.Message;
 
-            if(url.Success) //Check if contains URL
+            if (url.Success) //Check if contains URL
+            {
                 newMessageEdited = e.ChatMessage.Message.Replace(url.Value, "url");
+            }
+
             if (badWords.Count != 0) //Check if containing bad words
             {
                 for (int i = 0; i < badWords.Count; i++)
@@ -139,14 +142,10 @@ namespace TextToSpeechTTV
             {
                 newMessageEdited = newMessageEdited.Substring(0, Math.Min(newMessageEdited.Length, maxWordLength)) + "....... " + longMessage;
                 speechHelper.Speak($"{newUsername} {messageConnector} {newMessageEdited}");
+                return;
             }
-            else
-                speechHelper.Speak($"{newUsername} {messageConnector} {newMessageEdited}");
-        }
-            
-        private void OnNewSubscriber(object sender, OnNewSubscriberArgs e)
-        {
-            speechHelper.Speak($"{e.Subscriber.DisplayName} thank you for subbing! Much love <3");
+            speechHelper.Speak($"{newUsername} {messageConnector} {newMessageEdited}");
+                
         }
     }
 }

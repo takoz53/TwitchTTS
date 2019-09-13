@@ -20,6 +20,8 @@ namespace TextToSpeechTTV
                 Rate = rate
             };
 
+            speechSynthesizer.SetOutputToDefaultAudioDevice();
+
             try
             {
                 speechSynthesizer.SelectVoice(ttsName);
@@ -29,16 +31,7 @@ namespace TextToSpeechTTV
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("TTS Name does not exist. TTS will NOT work.");
                 Console.ForegroundColor = ConsoleColor.Gray;
-            }
-            
-
-            speechSynthesizer.SpeakCompleted += SpeechSynthesizer_SpeakCompleted;
-            
-        }
-
-        private void SpeechSynthesizer_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
-        {
-            Console.WriteLine("Speech has ended!");
+            }            
         }
 
         public static List<string> GetAllInstalledVoices()
@@ -57,7 +50,8 @@ namespace TextToSpeechTTV
 
         public void Speak(string text)
         {
-            speechSynthesizer.Speak(text);
+            Prompt prompt = new Prompt(text);
+            speechSynthesizer.Speak(prompt);
         }
 
         public string GetCurrentVoice()
