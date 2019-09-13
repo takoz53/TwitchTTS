@@ -2,9 +2,8 @@
 A TTS reading out Twitch chat loud with multiple settings you'll be able to change :)
 
 
-## Download TwitchTTS
-### [Click here](https://mega.nz/#F!fwMS0ILT!RIGRBmFWi_Kwc9h--sL0Ww)
-#### Updated on 13.09.2019
+## [Download TwitchTTS](https://mega.nz/#F!fwMS0ILT!RIGRBmFWi_Kwc9h--sL0Ww)
+### Updated on 13.09.2019
 
 ## Donate via Paypal
 I'd really appreciate Donations, so if you're extra-nice, you might want to give a donation to your hearts extent! Thank you!
