@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Google.Cloud.TextToSpeech.V1;
+
 
 namespace TextToSpeechTTV
 {
+
+
     class Config
     {
         //Path for every Config
@@ -15,11 +16,16 @@ namespace TextToSpeechTTV
         private readonly string blocklist = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
         private readonly string badwords = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "badwords.txt");
         private readonly string usernames = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.txt");
+        private readonly string new_usernames = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.json");
+        private readonly string voicelistfile = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "voicelist.txt");
         private readonly string foldername = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config");
+        public List<string> voicelist;
+        public TextToSpeechClient client;
 
         public Config()
         {
             CreateConfig();
+
 
             if (GetOAuth() == "oauth:youroauthkey")
             {
@@ -32,10 +38,52 @@ namespace TextToSpeechTTV
             }
         }
 
+        public object AuthExplicit(string jsonPath)
+        {
+            System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "gcp.json"));
+            try
+            {
+                client = TextToSpeechClient.Create();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to initialise GCP TTS Client. Set GCP to 'false' in options.txt");
+                Console.WriteLine("Press any key to see the exception...");
+                Console.ReadKey();
+                Console.WriteLine(e);
+                Console.WriteLine("Press any key to quit...");
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
+            var response = client.ListVoices("");
+
+            List<string> voices = new List<string>();
+
+            foreach (var voice in response.Voices)
+            {
+                Console.WriteLine($"{voice.Name} ({voice.SsmlGender}); Rate:{voice.NaturalSampleRateHertz} Language codes: {string.Join(", ", voice.LanguageCodes)}");
+                voices.Add(voice.Name);
+            }
+            voicelist = voices;
+
+            File.WriteAllText(voicelistfile, string.Empty);
+            File.WriteAllLines(voicelistfile, voices);
+            return null;
+        }
+
         private void CreateConfig()
         {
+
+
             if (Directory.Exists(foldername))
+            {
+                if (GetGCP() != "false")
+                {
+                    AuthExplicit(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "gcp.json"));
+                }
                 return;
+            }
+                
 
             if (!Directory.Exists(foldername))
                 Directory.CreateDirectory(foldername);
@@ -45,8 +93,10 @@ namespace TextToSpeechTTV
                 FillBlocklistExamples();
             if (!File.Exists(badwords))
                 File.Create(badwords);
-            if (!File.Exists(usernames))
-                FillUsernamesExamples();
+            //if (!File.Exists(usernames))
+            //    FillUsernamesExamples();
+            if (!File.Exists(new_usernames))
+                FillNewUsernamesExamples();
             if (!File.Exists(creds))
                 FillCredsFile();
 
@@ -56,13 +106,34 @@ namespace TextToSpeechTTV
             
         }
 
-        private void FillUsernamesExamples()
+        /*private void FillUsernamesExamples()
         {
             File.WriteAllLines(usernames, new string[]
             {
                 "drdisrespectlive=doctor disrespect",
                 "loltyler1=tyler 1",
                 "riot games=rito"
+            });
+        }*/
+
+        private void FillNewUsernamesExamples()
+        {
+            File.WriteAllLines(new_usernames, new string[]
+            {
+            @"{
+  ""users"": [
+    {
+      ""name"": ""youraccount"",
+      ""nick"": ""you"",
+      ""voice"": ""random""
+    },
+    {
+      ""name"": ""myaccount"",
+      ""nick"": ""me"",
+      ""voice"": ""fr-CA-Wavenet-B""
+    }
+  ]
+}"
             });
         }
         private void FillBlocklistExamples()
@@ -99,7 +170,11 @@ namespace TextToSpeechTTV
                 "Replace swear word with:",
                 "beep",
                 "Say this, if long Sentence:",
-                "to be continued"
+                "to be continued",
+                "GCP TTS? (true, wavenet, standard, false)",
+                "False",
+                "Default GCP Voice: (Select from voicelist.txt, random, random-per-user)",
+                "Random"
             });
         }
 
@@ -150,5 +225,35 @@ namespace TextToSpeechTTV
             string longMessage = File.ReadAllLines(options)[9];
             return longMessage;
         }
+        public string GetGCP()
+        {
+            string gcp = File.ReadAllLines(options)[11].ToLower();
+            if (gcp == "true")
+            {
+                return "true";
+            }
+            else if (gcp == "wavenet")
+            {
+                return "wavenet";
+            }
+            else if (gcp == "standard")
+            {
+                return "standard";
+            }
+            else
+            {
+                return "false";
+            }
+
+        }
+        public TextToSpeechClient GetGCPClient()
+        {
+            return client;
+        }
+
+
     }
+
+
+
 }
