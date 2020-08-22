@@ -6,7 +6,8 @@ Forked from [takoz53's work](https://github.com/takoz53/TwitchTTS). If you want 
 
 ## How to set up as developer?
 You'll (maybe?) need to add System.Speech available on your System as Reference
-You'll also need TwitchLib available on NuGet and you're good to go.
+You'll also need TwitchLib and Google.Cloud.TextToSpeech.V1 available on NuGet and you're good to go.
+
 
 ## How to set up as user? (Windows Only!)
 1. Download the Program and extract
