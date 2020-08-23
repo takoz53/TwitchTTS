@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TextToSpeechTTV
 {
@@ -12,9 +11,16 @@ namespace TextToSpeechTTV
         private static string badWordsLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "badwords.txt");
         private static string usernameRecognitionLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.txt");
         private static string blockListLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
-
+        private static string options = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "options.txt");
+        public Userlist userlist;
+        public Userlist tempuserlist = new Userlist { Users = new List<User>() };
+        public string defaultVoice;
         private List<string> badWords;
 
+        public void loadDefaultVoice()
+        {
+            defaultVoice = File.ReadAllLines(options)[13];
+        }
         public SpeechWordHandler()
         {
             //Load bad words only once, because there are many and might cause performance issues, rather save them on a List.
@@ -41,22 +47,36 @@ namespace TextToSpeechTTV
             return wordsFound;
         }
 
-        public string ContainsUsername(string username) //Check if username is in usernames list and return new nickname
+        public User ContainsJSONUsername(string username)
         {
-            List<string> usernames = File.ReadAllLines(usernameRecognitionLocation).ToList();
-            List<string> availableNames = new List<string>();
-            foreach(string s in usernames) //Example: hello=hi
+            User tempUser = new User();
+            //List<User> listOfUsers = new List<User
+            if (!File.Exists(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.json")))
             {
-                availableNames.Add(s.Split('=')[0]);
+                tempUser.Name = username;
+                tempUser.Nick = username;
+                //tempUser.Voice = defaultvoice;
+                return tempUser;
             }
-            for (int i = 0; i < availableNames.Count; i++)
+            String JSONtxt = File.ReadAllText(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.json"));
+            userlist = JsonConvert.DeserializeObject<Userlist>(JSONtxt);
+            tempUser = userlist.Users.FirstOrDefault(User => User.Name == username);
+            if (tempUser != null)
             {
-                if(availableNames.ElementAt(i) == username)
-                {
-                    return usernames.ElementAt(i).Split('=')[1];
-                }
+                return tempUser;
             }
-            return username;
+            tempUser = tempuserlist.Users.FirstOrDefault(User => User.Name == username);
+            if (tempUser != null)
+            {
+                return tempUser;
+            }
+            if (tempUser?.Name == null)
+            {
+                tempUser = createTempUser(username, defaultVoice);
+                tempuserlist.Users.Add(tempUser);
+                return tempUser;
+            }
+            return tempUser;
         }
 
         public bool CheckBlocked(string username) //Check if user is blocked
@@ -71,5 +91,27 @@ namespace TextToSpeechTTV
         {
             return blockListLocation;
         }
+
+        public User createTempUser(string username, string voice)
+        {
+            User tempUser = new User();
+            tempUser.Name = username;
+            tempUser.Nick = username;
+            tempUser.Voice = voice;
+            tempuserlist.Users.Add(tempUser);
+            return tempUser;
+         }
     }
-}
+    }
+public class User
+    {
+        public string Name { get; set; }
+        public string Nick { get; set; }
+        public string Voice { get; set; }
+    }
+
+public class Userlist
+    {
+        public List<User> Users { get; set; }
+    }
+

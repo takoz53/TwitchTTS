@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TwitchLib.Api.Core.Enums;
 using TwitchLib.Client;
 using TwitchLib.Client.Events;
-using TwitchLib.Client.Extensions;
 using TwitchLib.Client.Models;
 using System.Text.RegularExpressions;
 
@@ -25,6 +21,7 @@ namespace TextToSpeechTTV
         private string voice = "Microsoft David Desktop";
         private string antiswear = "beep";
         private string longMessage = "to be continued";
+        //private string gcp = "false";
 
         public TwitchBot()
         {
@@ -81,11 +78,13 @@ namespace TextToSpeechTTV
 
         private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
+            speechWordHandler.loadDefaultVoice();
             CommandHandler commandHandler = new CommandHandler();
 
             Console.WriteLine($"{e.ChatMessage.Username}:{e.ChatMessage.Message}");
-            string newUsername = speechWordHandler.ContainsUsername(e.ChatMessage.Username);
-
+            //string newUsername = speechWordHandler.ContainsUsername(e.ChatMessage.Username);
+            //Console.WriteLine($"{speechWordHandler.ContainsJSONUsername(e.ChatMessage.Username)}");
+            
             if (e.ChatMessage.Username == e.ChatMessage.BotUsername) //Ignore TTS-Bot.
                 return;
 
@@ -138,14 +137,15 @@ namespace TextToSpeechTTV
                 for (int i = 0; i < badWords.Count; i++)
                     newMessageEdited = newMessageEdited.Replace(badWords.ElementAt(i), antiswear);
             }
-            if (maxWordLength <= newMessageEdited.Length && maxWordLength != 0) //Check if Sentence is too long
+            if ((maxWordLength + longMessage.Length) <= newMessageEdited.Length && maxWordLength != 0) //Check if Sentence is too long
             {
                 newMessageEdited = newMessageEdited.Substring(0, Math.Min(newMessageEdited.Length, maxWordLength)) + "....... " + longMessage;
-                speechHelper.Speak($"{newUsername} {messageConnector} {newMessageEdited}");
-                return;
+                //speechHelper.Speak($"{newUsername} {messageConnector} {newMessageEdited}");
+                //return;
             }
-            speechHelper.Speak($"{newUsername} {messageConnector} {newMessageEdited}");
-                
+            
+            speechHelper.Speak_gcp(speechWordHandler.ContainsJSONUsername(e.ChatMessage.Username), $"{messageConnector} {newMessageEdited}");
+            
         }
     }
 }
