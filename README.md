@@ -6,10 +6,13 @@ Forked from [takoz53's work](https://github.com/takoz53/TwitchTTS). If you want 
 
 ## How to set up as developer?
 You'll (maybe?) need to add System.Speech available on your System as Reference
-You'll also need TwitchLib available on NuGet and you're good to go.
+
+You'll also need TwitchLib and Google.Cloud.TextToSpeech.V1 available on NuGet and you're good to go.
+
 
 ## How to set up as user? (Windows Only!)
-1. Download the Program and extract
+1. Download the latest release and extract
+1. Run once to generate a Config folder
 1. Go into Config and open up creds.txt
     1. Set up your Bot-Account ID and enter your ID below "ID:"(Just create a Twitch Account, **all lowercase!**)
     1. Create an [OAuth Key](https://twitchapps.com/tmi/) and enter your Key below "Oauth:"
@@ -23,8 +26,10 @@ You'll also need TwitchLib available on NuGet and you're good to go.
 ## How to set up with GCP Text-To-Speech
 In order for the bot to be able to access the google API, a valid service account key with access to the text-to-speech API must be available in the gcp.json file in the config folder.
 
-1.Register for a free account at https://cloud.google.com/free (1 million wavenet characters per month are free, and 4 million free standard characters)
+1. Register for a free account at https://cloud.google.com/free (1 million wavenet characters per month are free, and 4 million free standard characters)
 Try out the TTS here: https://cloud.google.com/text-to-speech
+
+I'd recommend setting up a budget of $0 just in case.
 
 ### Create credentials
 
