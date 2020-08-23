@@ -137,7 +137,7 @@ namespace TextToSpeechTTV
                 for (int i = 0; i < badWords.Count; i++)
                     newMessageEdited = newMessageEdited.Replace(badWords.ElementAt(i), antiswear);
             }
-            if (maxWordLength <= newMessageEdited.Length && maxWordLength != 0) //Check if Sentence is too long
+            if ((maxWordLength + longMessage.Length) <= newMessageEdited.Length && maxWordLength != 0) //Check if Sentence is too long
             {
                 newMessageEdited = newMessageEdited.Substring(0, Math.Min(newMessageEdited.Length, maxWordLength)) + "....... " + longMessage;
                 //speechHelper.Speak($"{newUsername} {messageConnector} {newMessageEdited}");
@@ -145,6 +145,7 @@ namespace TextToSpeechTTV
             }
             
             speechHelper.Speak_gcp(speechWordHandler.ContainsJSONUsername(e.ChatMessage.Username), $"{messageConnector} {newMessageEdited}");
+            
         }
     }
 }
