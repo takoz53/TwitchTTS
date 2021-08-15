@@ -15,7 +15,6 @@ namespace TextToSpeechTTV
         private readonly string options = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "options.txt");
         private readonly string blocklist = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
         private readonly string badwords = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "badwords.txt");
-        private readonly string usernames = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.txt");
         private readonly string new_usernames = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.json");
         private readonly string voicelistfile = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "voicelist.txt");
         private readonly string foldername = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config");
@@ -25,17 +24,6 @@ namespace TextToSpeechTTV
         public Config()
         {
             CreateConfig();
-
-
-            if (GetOAuth() == "oauth:youroauthkey")
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Your OAuth Key hasn't been set! Can't connect anywhere without setting it.");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine("Press any key to quit...");
-                Console.ReadKey();
-                Environment.Exit(0);
-            }
         }
 
         public object AuthExplicit(string jsonPath)
@@ -73,8 +61,6 @@ namespace TextToSpeechTTV
 
         private void CreateConfig()
         {
-
-
             if (Directory.Exists(foldername))
             {
                 if (GetGCP() != "false")
@@ -87,34 +73,17 @@ namespace TextToSpeechTTV
 
             if (!Directory.Exists(foldername))
                 Directory.CreateDirectory(foldername);
+            if (!File.Exists(badwords))
+                File.Create(badwords).Dispose();
             if (!File.Exists(options))
                 FillOptionsFile();
             if (!File.Exists(blocklist))
                 FillBlocklistExamples();
-            if (!File.Exists(badwords))
-                File.Create(badwords);
-            //if (!File.Exists(usernames))
-            //    FillUsernamesExamples();
             if (!File.Exists(new_usernames))
                 FillNewUsernamesExamples();
             if (!File.Exists(creds))
                 FillCredsFile();
-
-            Console.WriteLine("Created config File. Please set up your creds and settings!\nPress any key to quit...");
-            Console.ReadKey();
-            Environment.Exit(0);
-            
         }
-
-        /*private void FillUsernamesExamples()
-        {
-            File.WriteAllLines(usernames, new string[]
-            {
-                "drdisrespectlive=doctor disrespect",
-                "loltyler1=tyler 1",
-                "riot games=rito"
-            });
-        }*/
 
         private void FillNewUsernamesExamples()
         {
@@ -149,17 +118,64 @@ namespace TextToSpeechTTV
         }
         private void FillCredsFile()
         {
+            Console.Write("Please enter your Botname (or Username, if no Bot Account): ");
+            string twitchId = Console.ReadLine();
+            Console.Write("Please enter your oauth key. URL in Readme (oauth:...): ");
+            string oAuth = Console.ReadLine();
+            Console.Write("Please enter your Channel Name (lowercase): ");
+            string channelName = Console.ReadLine();
+            Console.Write("Please enter your Access Token. URL in Readme: ");
+            string accessToken = Console.ReadLine();
+            Console.Write("Lastly I need your ChannelID. You can get the ID from the URL in the Readme\n" +
+                          "Please Enter your Channel ID: ");
+            string channelId = Console.ReadLine();
             File.WriteAllLines(creds, new string[] {
                 "Twitch ID (lowercase):",
-                "yourbotname",
+                twitchId,
                 "OAUTH (Twitch TMI):",
-                "oauth:youroauthkey",
+                oAuth,
                 "Channel(lowercase):",
-                "yourchannelname" });
+                channelName,
+                "Access token:",
+                accessToken,
+                "ChannelID:",
+                channelId
+            });
+            Console.WriteLine("If anything doesn't seem to work out or changes, you can find this file in Config/creds.txt and edit it.");
+            Console.WriteLine("--------------------------------------------------------");
         }
+
 
         private void FillOptionsFile()
         {
+            Console.WriteLine("I've automatically set up the default options for the TTS.\n" +
+                              "You can change those Settings in the options.txt file.");
+            string rewardName = "";
+            while (true)
+            {
+                Console.Write("Do you want to bind TTS to a Channel Reward? Y / N: ");
+                string result = Console.ReadLine().ToLower();
+                if (result == "y")
+                {
+                    Console.Write("Please enter the Reward Title (e.g. TTS-Reward), case sensitive: ");
+                    rewardName = Console.ReadLine();
+                    break;
+                } else if (result == "n")
+                {
+                    Console.WriteLine("Alright! TTS will run on every message sent!");
+                    rewardName = "RewardType.None";
+                    break;
+                }
+            }
+
+            string readOut = "";
+            while (true) {
+                Console.WriteLine("Should the TTS read out usernames? Y/N:");
+                readOut = Console.ReadLine().ToLower();
+                if (readOut == "y" || readOut == "n")
+                    break;
+            }
+
             File.WriteAllLines(options, new string[] {
                 "Set TTS Voice:",
                 "Microsoft David Desktop",
@@ -174,8 +190,13 @@ namespace TextToSpeechTTV
                 "GCP TTS? (true, wavenet, standard, false)",
                 "False",
                 "Default GCP Voice: (Select from voicelist.txt, random, random-per-user)",
-                "Random"
+                "Random",
+                "Bound Reward Name:",
+                 rewardName,
+                 "Read Names?",
+                 readOut == "y" ? "true" : "false"
             });
+            Console.WriteLine("--------------------------------------------------------");
         }
 
         public string GetUsername()
@@ -196,6 +217,22 @@ namespace TextToSpeechTTV
             return channel;
         }
 
+        public string GetAccessToken () {
+            string accessToken = File.ReadAllLines(creds)[7];
+            return accessToken;
+        }
+
+        public string GetChannelId()
+        {
+            string channelId = File.ReadAllLines(creds)[9];
+            return channelId;
+        }
+
+        public bool ReadOutNames()
+        {
+            bool readOut = bool.Parse(File.ReadAllLines(options)[17]);
+            return readOut;
+        }
         public string SetVoice()
         {
             string voice = File.ReadAllLines(options)[1];
@@ -225,6 +262,7 @@ namespace TextToSpeechTTV
             string longMessage = File.ReadAllLines(options)[9];
             return longMessage;
         }
+
         public string GetGCP()
         {
             string gcp = File.ReadAllLines(options)[11].ToLower();
@@ -246,6 +284,12 @@ namespace TextToSpeechTTV
             }
 
         }
+        public string GetRewardName ()
+        {
+            string rewardName = File.ReadAllLines(options)[15];
+            return rewardName;
+        }
+
         public TextToSpeechClient GetGCPClient()
         {
             return client;
