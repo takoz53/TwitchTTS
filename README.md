@@ -97,6 +97,6 @@ Just note down, that the names **have to** be written in lowercase.
 ### Can I block and unblock users from chat?
 Yeah, definitely. You can by typing !block username and !unblock username. It'll do the checks whether the user is blocked and input is correct, so don't worry about typing something wrong.
 
-##Feel free to [donate](https://streamelements.com/takoz5334/tip)
+## Feel free to [donate](https://streamelements.com/takoz5334/tip)
 If you liked the project and want to give me a bit of support, you can drop a few pennies here c:
 
