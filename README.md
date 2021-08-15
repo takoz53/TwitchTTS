@@ -19,13 +19,11 @@ You'll also need TwitchLib and Google.Cloud.TextToSpeech.V1 available on NuGet a
     4. Create an [OAuth Key](https://twitchapps.com/tmi/) and enter your Key (oauth:xxxxxx..)
     5. Set the channel, where it should connect to (**all lowercase!**)
     6. Create an [Access Token](https://twitchtokengenerator.com/) with Custom Scope Token. Tick following:
-        1. chat:read
-        2. chat:edit
-        3. channel:read:redemptions
-        4. Hit GENERATE TOKEN.
-    7. Insert your Access Token.
-    8. Get your [Channel ID](https://www.streamweasels.com/support/convert-twitch-username-to-user-id/)
-    9. Insert your Twitch/Channel ID.
+        1. channel:read:redemptions
+    7. Hit GENERATE TOKEN.
+    8. Insert your Access Token.
+    9. Get your [Channel ID](https://www.streamweasels.com/support/convert-twitch-username-to-user-id/)
+    10. Insert your Twitch/Channel ID.
 1. Everything should be working now.
 2. Don't forget to set up a bad words filter or you might get banned if somebody wants to be funny.
 3. I don't take responsibility for whatever happens in your stream.
