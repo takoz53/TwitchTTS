@@ -1,7 +1,7 @@
 # TwitchTTS with Channel Awards
 A TTS client for Twitch chat, integrated with GCP Text-to-speech (500 voices from 40+ languages).
 
-### Updated on 23.08.2020
+### Updated on 16.08.2021
 ## Download at [Releases](https://github.com/takoz53/TwitchTTS/releases)
 ## How to set up as developer?
 You'll (maybe?) need to add System.Speech available on your System as Reference
@@ -13,8 +13,8 @@ You'll also need TwitchLib and Google.Cloud.TextToSpeech.V1 available on NuGet a
 1. Download the latest release and extract
 1. Run the Program and you'll have to fill out multiple things
     1. Firstly, whether you want to bind it on a specific Channel Award. If yes, type Y, else N.
-        1. Now type the Channel Award its Title, e.g. "TTS" without the "".
-    1. If you want the TTS to read out usernames (e.g. X said ...), Y, else N.
+        1. If Y, type the Channel Award its Title, e.g. "TTS" without the "".
+    1. If you want the TTS to read out usernames (e.g. X said ...), hit Y, else N.
     2. Enter your botname / username
     4. Create an [OAuth Key](https://twitchapps.com/tmi/) and enter your Key (oauth:xxxxxx..)
     5. Set the channel, where it should connect to (**all lowercase!**)
