@@ -2,7 +2,7 @@
 A TTS client for Twitch chat, integrated with GCP Text-to-speech (500 voices from 40+ languages). 
 
 ### Updated on 23.08.2020
-## Download [Here](https://mega.nz/file/6x9wWQhI#CqcPYCyqCbKkeZqFY4LHorvKMlNO5fVMdFqFhhquRNg)
+## Download [Here](https://mega.nz/file/6x9wWQhI#CqcPYCyqCbKkeZqFY4LHorvKMlNO5fVMdFqFhhquRNg) or at Releases
 ## How to set up as developer?
 You'll (maybe?) need to add System.Speech available on your System as Reference
 
