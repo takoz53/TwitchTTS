@@ -5,7 +5,6 @@ using TwitchLib.Client;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
 using System.Text.RegularExpressions;
-using TwitchLib.Api;
 using TwitchLib.PubSub;
 
 namespace TextToSpeechTTV
@@ -26,6 +25,7 @@ namespace TextToSpeechTTV
         private string antiswear = "beep";
         private string longMessage = "to be continued";
         private bool readOut = true;
+
         private string rewardName = "RewardType.None";
         //private string gcp = "false";
 
@@ -54,7 +54,7 @@ namespace TextToSpeechTTV
             Console.WriteLine("----------------------------------------------------------------");
             //Set up Twitch Info
             ConnectionCredentials credentials = new ConnectionCredentials(config.GetUsername(), config.GetOAuth());
-            
+
             client = new TwitchClient();
             client.Initialize(credentials, config.GetChannel());
             client.OnConnected += OnConnected;
@@ -68,21 +68,31 @@ namespace TextToSpeechTTV
             pubSub.Connect();
         }
 
-        private void PubSub_OnChannelPointsRewardRedeemed (object sender, TwitchLib.PubSub.Events.OnChannelPointsRewardRedeemedArgs e) {
-            if (rewardName == "RewardType.None") {
-                return;
-            }
-            // Redeemed something different.
-            if (e.RewardRedeemed.Redemption.Reward.Title != rewardName) {
+        private void PubSub_OnChannelPointsRewardRedeemed(object sender,
+            TwitchLib.PubSub.Events.OnChannelPointsRewardRedeemedArgs e)
+        {
+            if (rewardName == "RewardType.None")
+            {
                 return;
             }
 
+            // Redeemed something different.
+            if (e.RewardRedeemed.Redemption.Reward.Title != rewardName)
+            {
+                return;
+            }
+
+            Console.Write("TTS Reward was Redeemed: ");
             var newMessageEdited = CreateMessage(e.RewardRedeemed.Redemption.UserInput);
-            if (readOut) speechHelper.Speak_gcp(speechWordHandler.ContainsJSONUsername(e.RewardRedeemed.Redemption.User.Login), $"{messageConnector} {newMessageEdited}");
-            else speechHelper.Speak_gcp(new User(), $"{messageConnector} {newMessageEdited}");
+            Console.WriteLine(newMessageEdited);
+            string username = e.RewardRedeemed.Redemption.User.Login;
+            speechWordHandler.LoadDefaultVoice();
+            speechHelper.Speak_gcp(speechWordHandler.ContainsJsonUsername(username),
+                readOut ? $"{messageConnector} {newMessageEdited}" : $"{newMessageEdited}", readOut);
         }
 
-        private void Ps_OnPubSubServiceConnected (object sender, EventArgs e) {
+        private void Ps_OnPubSubServiceConnected(object sender, EventArgs e)
+        {
             pubSub.ListenToChannelPoints(config.GetChannelId());
             pubSub.SendTopics(config.GetAccessToken());
             Console.WriteLine("PubSub Service started running!");
@@ -90,12 +100,11 @@ namespace TextToSpeechTTV
 
         private void OnConnected(object sender, OnConnectedArgs e)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("Currently using voice: ");
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(speechHelper.GetCurrentVoice());
+            Console.WriteLine("Successfully connected!");
             Console.ForegroundColor = ConsoleColor.Gray;
         }
+
         private void OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
             Console.ForegroundColor = ConsoleColor.Green;
@@ -105,50 +114,57 @@ namespace TextToSpeechTTV
 
         private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
-            if (rewardName != "RewardType.None") {
-                return;
-            }
-            speechWordHandler.loadDefaultVoice();
+            speechWordHandler.LoadDefaultVoice();
             CommandHandler commandHandler = new CommandHandler();
-
-            Console.WriteLine($"{e.ChatMessage.Username}:{e.ChatMessage.Message}");
-            
-            if (e.ChatMessage.Username == e.ChatMessage.BotUsername) //Ignore TTS-Bot.
-                return;
 
             if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
             {
-                if (e.ChatMessage.Message.StartsWith("!block"))
+                string message = e.ChatMessage.Message.ToLower();
+                if (message.StartsWith("!block"))
                 {
-                    bool blocked = commandHandler.BlockUser(e.ChatMessage.Message);
-                    if (blocked)
-                        client.SendMessage(config.GetChannel(), "The user has been successfully blocked.");
-                    else
-                        client.SendMessage(config.GetChannel(), "The user is already blocked or the input was wrong.");
+                    var blocked = commandHandler.BlockUser(e.ChatMessage.Message);
+                    client.SendMessage(config.GetChannel(),
+                        blocked
+                            ? "The user has been successfully blocked."
+                            : "The user is already blocked or the input was wrong.");
                 }
-                else if (e.ChatMessage.Message.StartsWith("!unblock"))
+                else if (message.StartsWith("!unblock"))
                 {
-                    bool unblocked = commandHandler.UnblockUser(e.ChatMessage.Message);
-                    if (unblocked)
-                        client.SendMessage(config.GetChannel(), "The user has been successfully unblocked.");
-                    else
-                        client.SendMessage(config.GetChannel(), "The user isn't blocked or the input was wrong.");
+                    var unblocked = commandHandler.UnblockUser(e.ChatMessage.Message);
+                    client.SendMessage(config.GetChannel(),
+                        unblocked
+                            ? "The user has been successfully unblocked."
+                            : "The user isn't blocked or the input was wrong.");
+                }
+                else if (message.ToLower() == "!stoptts")
+                {
+                    speechHelper.StopReading();
                 }
             }
+
+            if (rewardName != "RewardType.None")
+            {
+                return;
+            }
+
+            Console.WriteLine($"{e.ChatMessage.Username}:{e.ChatMessage.Message}");
 
             if (speechWordHandler.CheckBlocked(e.ChatMessage.Username)) //Ignore blocked users
                 return;
             if (e.ChatMessage.Message.StartsWith("!")) //Ignore Commands starting with !
                 return;
 
-            string newMessageEdited = CreateMessage(e.ChatMessage.Message);
-            if (readOut) speechHelper.Speak_gcp(speechWordHandler.ContainsJSONUsername(e.ChatMessage.Username), $"{messageConnector} {newMessageEdited}");
-            else speechHelper.Speak_gcp(new User(), $"{messageConnector} {newMessageEdited}");
+            var newMessageEdited = CreateMessage(e.ChatMessage.Message);
+            speechHelper.Speak_gcp(speechWordHandler.ContainsJsonUsername(e.ChatMessage.Username),
+                readOut ? $"{messageConnector} {newMessageEdited}" : $"{newMessageEdited}", readOut);
         }
 
-        private string CreateMessage(string message) {
+        private string CreateMessage(string message)
+        {
             //Check if URL is in Message
-            Regex UrlMatch = new Regex(@"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?");
+            Regex UrlMatch =
+                new Regex(
+                    @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?");
             Match url = UrlMatch.Match(message);
 
             //Create a List for multiple bad Words in sentence
@@ -171,9 +187,12 @@ namespace TextToSpeechTTV
                 for (int i = 0; i < badWords.Count; i++)
                     newMessageEdited = newMessageEdited.Replace(badWords.ElementAt(i), antiswear);
             }
-            if ((maxWordLength + longMessage.Length) <= newMessageEdited.Length && maxWordLength != 0) //Check if Sentence is too long
+
+            if ((maxWordLength + longMessage.Length) <= newMessageEdited.Length && maxWordLength != 0
+            ) //Check if Sentence is too long
             {
-                newMessageEdited = newMessageEdited.Substring(0, Math.Min(newMessageEdited.Length, maxWordLength)) + "....... " + longMessage;
+                newMessageEdited = newMessageEdited.Substring(0, Math.Min(newMessageEdited.Length, maxWordLength)) +
+                                   "....... " + longMessage;
             }
 
             return newMessageEdited;

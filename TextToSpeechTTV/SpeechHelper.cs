@@ -6,51 +6,54 @@ using Google.Cloud.TextToSpeech.V1;
 using System.IO;
 using NAudio.Wave;
 using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace TextToSpeechTTV
 {
     class SpeechHelper
     {
+        private int rate;
+        private string ttsName;
         private SpeechSynthesizer speechSynthesizer;
         private TextToSpeechClient client;
         private List<string> voicelist;
+
+        private WaveOutEvent waveOut;
         //private List<string> voicelistWavenet;
         //private List<string> voicelistStandard;
 
         public SpeechHelper(string ttsName, int rate)
         {
-            speechSynthesizer = new SpeechSynthesizer
-            {
-                Rate = rate
-            };
-
-            speechSynthesizer.SetOutputToDefaultAudioDevice();
+            this.rate = rate;
+            this.ttsName = ttsName;
 
             try
             {
-                speechSynthesizer.SelectVoice(ttsName);
+                CreateSpeechSynthesizer();
                 //Need to add this in an if gcp = yes
                 Config config = new Config();
-                string gcptype = config.GetGCP();
+                string gcpType = config.GetGCP();
                 voicelist = config.voicelist;
-                if (gcptype != "false")
+                if (voicelist == null)
+                {
+                    voicelist = new List<string>();
+                }
+
+                if (gcpType != "false")
                 {
                     client = config.GetGCPClient();
-                    if (gcptype == "standard")
+                    if (gcpType == "standard")
                     {
-                        voicelist = voicelist.FindAll(delegate (string s) { return s.Contains("Standard"); });
+                        voicelist = voicelist.FindAll(delegate(string s) { return s.Contains("Standard"); });
                     }
-                    else if (gcptype == "wavenet")
+                    else if (gcpType == "wavenet")
                     {
-                        voicelist = voicelist.FindAll(delegate (string s) { return s.Contains("Wavenet"); });
-                    }
-                    else
-                    {
-                        //voicelist = voicelist;
+                        voicelist = voicelist.FindAll(delegate(string s) { return s.Contains("Wavenet"); });
                     }
                 }
-                Console.WriteLine(string.Join("\n",voicelist));
+
+                Console.WriteLine(string.Join("\n", voicelist));
                 Console.WriteLine("Voicelist");
 
             }
@@ -60,6 +63,25 @@ namespace TextToSpeechTTV
                 Console.WriteLine("TTS Name does not exist. TTS will NOT work.");
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
+        }
+
+        private void CreateSpeechSynthesizer()
+        {
+            speechSynthesizer = new SpeechSynthesizer
+            {
+                Rate = rate
+            };
+            speechSynthesizer.SetOutputToDefaultAudioDevice();
+            speechSynthesizer.SelectVoice(ttsName);
+        }
+
+        public void StopReading()
+        {
+            //Reinstate speechSynthesizer
+            speechSynthesizer.Dispose();
+            CreateSpeechSynthesizer();
+            waveOut.Stop();
+            waveOut.Dispose();
         }
 
         public static List<string> GetAllInstalledVoices()
@@ -73,34 +95,35 @@ namespace TextToSpeechTTV
                     list.Add(voiceInfo.Name);
                 }
             }
+
             return list;
         }
 
         public void Speak(User user, string text)
         {
-            Prompt prompt = new Prompt($"{ user.Nick } { text}");
+            Prompt prompt = new Prompt($"{user.Nick} {text}");
             speechSynthesizer.Speak(prompt);
         }
 
-        public string GetCurrentVoice()
+        public void Speak_gcp(User user, string text, bool readOut)
         {
-            return speechSynthesizer.Voice.Description;
-        }
-
-        public void Speak_gcp(User user, string text)
-        {
-            string voicename;
-            string languageCode;
+            string voiceName;
+            var userData = user;
+            if (!readOut)
+            {
+                user.Name = "";
+                user.Nick = "";
+            }
 
             //Fallback on Microsoft
-            if ( (voicelist?.Any() != true) || (user.Voice.ToLower() == "microsoft") )
+            if (voicelist?.Any() != true || user.Voice.ToLower() == "microsoft")
             {
                 Speak(user, text);
                 return;
             }
 
-           // Set the text input to be synthesized.
-           SynthesisInput input = new SynthesisInput
+            // Set the text input to be synthesized.
+            SynthesisInput input = new SynthesisInput
             {
                 Text = $"{user.Nick} {text}"
             };
@@ -110,32 +133,38 @@ namespace TextToSpeechTTV
 
             Random r = new Random();
             int randName = r.Next(voicelist.Count);
-            if  (user.Voice.ToLower() == "random-per-user")
+            switch (userData.Voice.ToLower())
             {
-                user.Voice = voicelist[randName];
-                voicename = voicelist[randName];
-            }
-            else if (user.Voice.ToLower() == "random")
-            {
+                case "random-per-user":
+                    userData.Voice = voicelist[randName];
+                    voiceName = voicelist[randName];
+                    break;
+                case "random":
+                    voiceName = voicelist[randName];
+                    break;
+                default:
+                {
+                    if (voicelist.Any(n => n.ToLower() == user.Voice.ToLower()))
+                    {
+                        voiceName = userData.Voice;
+                    }
+                    else
+                    {
+                        voiceName = "en-AU-Standard-B";
+                    }
 
-                voicename = voicelist[randName];
-            }
-            else if (voicelist.Any(n => n.ToLower() == user.Voice.ToLower()))
-            {
-                voicename = user.Voice;
-            }
-            else
-            {
-                voicename = "en-AU-Standard-B";
+                    break;
+                }
             }
 
-            string[] voiceParts = voicename.Split('-');
-            languageCode = ($"{voiceParts[0]}-{voiceParts[1]}");
+
+            string[] voiceParts = voiceName.Split('-');
+            var languageCode = ($"{voiceParts[0]}-{voiceParts[1]}");
 
 
             VoiceSelectionParams voice = new VoiceSelectionParams
-            { 
-                Name = voicename,
+            {
+                Name = voiceName,
                 LanguageCode = languageCode
             };
 
@@ -145,54 +174,54 @@ namespace TextToSpeechTTV
                 //AudioEncoding = AudioEncoding.Mp3
                 AudioEncoding = AudioEncoding.Linear16
             };
+            //WIP
+            var task = Task.Factory.StartNew(() => CreateResponse(input, voice, config));
+            var isCompletedSuccessfully = task.Wait(TimeSpan.FromMilliseconds(5000));
 
-            // Perform the Text-to-Speech request, passing the text input
-            // with the selected voice parameters and audio file type
-            var response = client.SynthesizeSpeech(new SynthesizeSpeechRequest
-            {
-                Input = input,
-                Voice = voice,
-                AudioConfig = config
-            });
-
-            /*using (Stream output = File.Create("sample.mp3"))
-            {
-                response.AudioContent.WriteTo(output);
-                Console.WriteLine($"Audio content written to file 'sample.mp3'");
-            }*/
-
-
-            //https://ryanclouser.com/csharp/2017/11/09/C-AWS-Polly-Speech-Synthesizer.html
+            if (!isCompletedSuccessfully) {
+                throw new TimeoutException("Can't read this piece of text! Exceeded Timeout limit! (5s)");
+            }
+            SynthesizeSpeechResponse response = task.Result;
 
             using (var ms = new MemoryStream())
             {
                 response.AudioContent.WriteTo(ms);
                 byte[] buf = ms.GetBuffer();
-                var source = new BufferedWaveProvider(new WaveFormat(24000, 16, 1));
-                //var source = new BufferedWaveProvider(new WaveFormat(44100, 1, 0));
-
-                TimeSpan timespan = TimeSpan.FromSeconds(20);
-                source.ReadFully = false;
-                source.BufferDuration = timespan;
-                try { 
-                source.AddSamples(buf, 0, buf.Length);
-                }
-                catch (Exception e)
-                {}
-                using (WaveOutEvent waveOut = new WaveOutEvent())
+                var source = new BufferedWaveProvider(new WaveFormat(24000, 16, 1))
                 {
-                    waveOut.Init(source);
-
-                    AutoResetEvent stopped = new AutoResetEvent(false);
-                    waveOut.PlaybackStopped += (object sender, StoppedEventArgs e) => { stopped.Set(); };
-                    waveOut.Play();
-                    stopped.WaitOne();
+                    ReadFully = false,
+                    BufferLength = buf.Length
+                };
+                try
+                {
+                    source.AddSamples(buf, 0, buf.Length);
+                }
+                catch (Exception) {
+                    Console.WriteLine("Can't read the given TTS input!");
+                    return;
                 }
 
+                waveOut = new WaveOutEvent();
+                waveOut.Init(source);
+
+                AutoResetEvent stopped = new AutoResetEvent(false);
+                waveOut.PlaybackStopped += (sender, e) => {
+                    stopped.Set();
+                    waveOut.Dispose();
+                };
+                waveOut.Play();
+                stopped.WaitOne();
             }
-
         }
-        
-    }
 
+        private SynthesizeSpeechResponse CreateResponse(SynthesisInput input, VoiceSelectionParams voice, AudioConfig config)
+        {
+            var response = client.SynthesizeSpeech(new SynthesizeSpeechRequest {
+                Input = input,
+                Voice = voice,
+                AudioConfig = config
+            });
+            return response;
+        }
+    }
 }

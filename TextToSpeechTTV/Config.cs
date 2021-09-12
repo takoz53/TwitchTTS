@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Google.Cloud.TextToSpeech.V1;
 
 
@@ -26,7 +27,7 @@ namespace TextToSpeechTTV
             CreateConfig();
         }
 
-        public object AuthExplicit(string jsonPath)
+        public object AuthExplicit()
         {
             System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "gcp.json"));
             try
@@ -65,7 +66,7 @@ namespace TextToSpeechTTV
             {
                 if (GetGCP() != "false")
                 {
-                    AuthExplicit(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "gcp.json"));
+                    AuthExplicit();
                 }
                 return;
             }
@@ -188,7 +189,7 @@ namespace TextToSpeechTTV
                 "Say this, if long Sentence:",
                 "to be continued",
                 "GCP TTS? (true, wavenet, standard, false)",
-                "False",
+                "false",
                 "Default GCP Voice: (Select from voicelist.txt, random, random-per-user)",
                 "Random",
                 "Bound Reward Name:",
@@ -266,23 +267,11 @@ namespace TextToSpeechTTV
         public string GetGCP()
         {
             string gcp = File.ReadAllLines(options)[11].ToLower();
-            if (gcp == "true")
-            {
-                return "true";
-            }
-            else if (gcp == "wavenet")
-            {
-                return "wavenet";
-            }
-            else if (gcp == "standard")
-            {
-                return "standard";
-            }
-            else
-            {
-                return "false";
-            }
-
+            string[] settings = {"true", "wavenet", "standard", "false"};
+            if (settings.Contains(gcp))
+                return gcp;
+            Console.WriteLine("Couldn't get GCP Settings in Settings file!");
+            throw new ArgumentException("Must be either true, false, wavenet, or standard");
         }
         public string GetRewardName ()
         {
