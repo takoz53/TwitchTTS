@@ -1,7 +1,7 @@
-# TwitchTTS
-A TTS client for Twitch chat, integrated with GCP Text-to-speech (500 voices from 40+ languages). 
+# TwitchTTS with Channel Awards
+A TTS client for Twitch chat, integrated with GCP Text-to-speech (500 voices from 40+ languages).
 
-### Updated on 23.08.2020
+### Updated on 16.08.2021
 ## Download at [Releases](https://github.com/takoz53/TwitchTTS/releases)
 ## How to set up as developer?
 You'll (maybe?) need to add System.Speech available on your System as Reference
@@ -11,16 +11,22 @@ You'll also need TwitchLib and Google.Cloud.TextToSpeech.V1 available on NuGet a
 
 ## How to set up as user? (Windows Only!)
 1. Download the latest release and extract
-1. Run once to generate a Config folder
-1. Go into Config and open up creds.txt
-    1. Set up your Bot-Account ID and enter your ID below "ID:"(Just create a Twitch Account, **all lowercase!**)
-    1. Create an [OAuth Key](https://twitchapps.com/tmi/) and enter your Key below "Oauth:"
-    1. Set the channel, where it should connect to (**all lowercase!**)
-1. Open up the .exe and check what voices your PC Supports (It'll be shown inside the Console)
-    1. Copy a voice its name **(Care lower & uppercase)** and put it in your Config it's options.txt its "voice"
-1. Set Max-Letters Length, which should be Displayed (After for example 40 Letters, the bot will say "to be continued")
-    1. To read out everything until the end, leave the Setting at 0.
-1. Run the program, type something in your Chat and it should be working.
+1. Run the Program and you'll have to fill out multiple things
+    1. Firstly, whether you want to bind it on a specific Channel Award. If yes, type Y, else N.
+        1. If Y, type the Channel Award its Title, e.g. "TTS" without the "".
+    1. If you want the TTS to read out usernames (e.g. X said ...), hit Y, else N.
+    2. Enter your botname / username
+    4. Create an [OAuth Key](https://twitchapps.com/tmi/) and enter your Key (oauth:xxxxxx..)
+    5. Set the channel, where it should connect to (**all lowercase!**)
+    6. Create an [Access Token](https://twitchtokengenerator.com/) with Custom Scope Token. Tick following:
+        1. channel:read:redemptions
+    7. Hit GENERATE TOKEN.
+    8. Insert your Access Token.
+    9. Get your [Channel ID](https://www.streamweasels.com/support/convert-twitch-username-to-user-id/)
+    10. Insert your Twitch/Channel ID.
+1. Everything should be working now.
+2. Don't forget to set up a bad words filter or you might get banned if somebody wants to be funny.
+3. I don't take responsibility for whatever happens in your stream.
 
 ## How to set up with GCP Text-To-Speech
 In order for the bot to be able to access the google API, a valid service account key with access to the text-to-speech API must be available in the gcp.json file in the config folder.
@@ -88,4 +94,7 @@ Just note down, that the names **have to** be written in lowercase.
 
 ### Can I block and unblock users from chat?
 Yeah, definitely. You can by typing !block username and !unblock username. It'll do the checks whether the user is blocked and input is correct, so don't worry about typing something wrong.
+
+## Feel free to [donate](https://streamelements.com/takoz5334/tip)
+If you liked the project and want to give me a bit of support, you can drop a few pennies here c:
 
