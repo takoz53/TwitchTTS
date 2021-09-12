@@ -1,7 +1,7 @@
 # TwitchTTS with Channel Awards
 A TTS client for Twitch chat, integrated with GCP Text-to-speech (500 voices from 40+ languages).
 
-### Updated on 16.08.2021
+### Updated on 12.09.2021
 ## Download at [Releases](https://github.com/takoz53/TwitchTTS/releases)
 ## How to set up as developer?
 You'll (maybe?) need to add System.Speech available on your System as Reference
@@ -94,6 +94,9 @@ Just note down, that the names **have to** be written in lowercase.
 
 ### Can I block and unblock users from chat?
 Yeah, definitely. You can by typing !block username and !unblock username. It'll do the checks whether the user is blocked and input is correct, so don't worry about typing something wrong.
+
+### How do I stop a message! It is malicious!
+Either you or your moderators can use the !stoptts command to stop the text. It should stop immediately. Worst case you can stop the whole application!
 
 ## Feel free to [donate](https://streamelements.com/takoz5334/tip)
 If you liked the project and want to give me a bit of support, you can drop a few pennies here c:
