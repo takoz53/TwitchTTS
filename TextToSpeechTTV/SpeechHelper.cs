@@ -15,6 +15,8 @@ namespace TextToSpeechTTV
     {
         private int rate;
         private string ttsName;
+        private double googleSpeakingRate;
+        private double googlePitch;
         private SpeechSynthesizer speechSynthesizer;
         private TextToSpeechClient client;
         private List<string> voicelist;
@@ -34,6 +36,8 @@ namespace TextToSpeechTTV
                 //Need to add this in an if gcp = yes
                 Config config = new Config();
                 string gcpType = config.GetGCP();
+                googleSpeakingRate = config.GetSpeakingRate();
+                googlePitch = config.GetSpeakingPitch();
                 voicelist = config.voicelist;
                 if (voicelist == null)
                 {
@@ -168,12 +172,13 @@ namespace TextToSpeechTTV
                 LanguageCode = languageCode
             };
 
-            // Select the type of audio file you want returned.
             AudioConfig config = new AudioConfig
             {
-                //AudioEncoding = AudioEncoding.Mp3
-                AudioEncoding = AudioEncoding.Linear16
+                AudioEncoding = AudioEncoding.Linear16,
+                SpeakingRate = googleSpeakingRate,
+                Pitch = googlePitch
             };
+
             //WIP
             var task = Task.Factory.StartNew(() => CreateResponse(input, voice, config));
             var isCompletedSuccessfully = task.Wait(TimeSpan.FromMilliseconds(5000));

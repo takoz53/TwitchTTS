@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using Google.Cloud.TextToSpeech.V1;
@@ -95,12 +96,16 @@ namespace TextToSpeechTTV
     {
       ""name"": ""youraccount"",
       ""nick"": ""you"",
-      ""voice"": ""random""
+      ""voice"": ""random"",
+      ""speakingSpeed:"" ""1"",
+      ""speakingPitch:"" ""0""
     },
     {
       ""name"": ""myaccount"",
       ""nick"": ""me"",
       ""voice"": ""fr-CA-Wavenet-B""
+      ""speakingSpeed:"" ""2"",
+      ""speakingPitch:"" ""10""
     }
   ]
 }"
@@ -177,6 +182,23 @@ namespace TextToSpeechTTV
                     break;
             }
 
+            double googleSpeakingRate;
+            double googlePitch;
+
+            while (true) {
+                Console.Write("Please select Speaking Speed (0.25 to 4.0; 1 = Default Speed):");
+                string speakingRate = Console.ReadLine();
+                Console.Write("Please select the voice pitch (-20 to 20; 0 = Default Pitch):");
+                string speakingPitch = Console.ReadLine();
+                double.TryParse(speakingRate, out googleSpeakingRate);
+                double.TryParse(speakingPitch, out googlePitch);
+                if ((googleSpeakingRate <= 4 || googleSpeakingRate >= 0.25)
+                    && (googlePitch <= 20 || googlePitch >= -20)) {
+                    break;
+                }
+                Console.WriteLine("The entered values are either too high or too low! Please recheck the values.");
+            }
+
             File.WriteAllLines(options, new string[] {
                 "Set TTS Voice:",
                 "Microsoft David Desktop",
@@ -194,8 +216,12 @@ namespace TextToSpeechTTV
                 "Random",
                 "Bound Reward Name:",
                  rewardName,
-                 "Read Names?",
-                 readOut == "y" ? "true" : "false"
+                 "Read Names?:",
+                 readOut == "y" ? "true" : "false",
+                 "Google Speaking Speed:",
+                 googleSpeakingRate.ToString(),
+                 "Google Speaking Pitch:",
+                 googlePitch.ToString()
             });
             Console.WriteLine("--------------------------------------------------------");
         }
@@ -234,6 +260,16 @@ namespace TextToSpeechTTV
             bool readOut = bool.Parse(File.ReadAllLines(options)[17]);
             return readOut;
         }
+
+        public double GetSpeakingRate () {
+            double speakingRate = double.Parse(File.ReadAllLines(options)[19]);
+            return speakingRate;
+        }
+        public double GetSpeakingPitch () {
+            double speakingRate = double.Parse(File.ReadAllLines(options)[21]);
+            return speakingRate;
+        }
+
         public string SetVoice()
         {
             string voice = File.ReadAllLines(options)[1];
@@ -283,10 +319,5 @@ namespace TextToSpeechTTV
         {
             return client;
         }
-
-
     }
-
-
-
 }

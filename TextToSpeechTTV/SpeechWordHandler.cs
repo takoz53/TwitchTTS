@@ -62,10 +62,21 @@ namespace TextToSpeechTTV
             {
                 if (user.Name == username)
                 {
-                    return CreateTempUser(username, user.Nick, user.Voice);
+                    try
+                    {
+                        return CreateTempUser(username, user.Nick, user.Voice, user.SpeakingSpeed, user.SpeakingPitch);
+                    }
+                    catch (Exception)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Couldn't get User Data. Speaking Rate or Pitch might not be set for user!\n" +
+                                          "Please delete the Config Folder (or cut it somewhere else) and restart the Program.\n" +
+                                          "This will create a new usernames.json file with the new json-properties.");
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
                 }
             }
-            return CreateTempUser(username, username, defaultVoice);
+            return CreateTempUser(username, username, defaultVoice, 1, 0);
         }
 
         public bool CheckBlocked(string username) //Check if user is blocked
@@ -79,13 +90,15 @@ namespace TextToSpeechTTV
             return blockListLocation;
         }
 
-        public User CreateTempUser(string username, string nick, string voice)
+        public User CreateTempUser(string username, string nick, string voice, double speakingSpeed, double speakingPitch)
         {
             var tempUser = new User
             {
                 Name = username,
                 Nick = nick,
-                Voice = voice
+                Voice = voice,
+                SpeakingSpeed = speakingSpeed,
+                SpeakingPitch = speakingPitch
             };
             return tempUser;
         }
@@ -93,14 +106,16 @@ namespace TextToSpeechTTV
 }
 
 public class User
-    {
-        public string Name { get; set; }
-        public string Nick { get; set; }
-        public string Voice { get; set; }
-    }
+{
+    public string Name { get; set; }
+    public string Nick { get; set; }
+    public string Voice { get; set; }
+    public double SpeakingSpeed { get; set; }
+    public double SpeakingPitch { get; set; }
+}
 
 public class Userlist
-    {
-        public List<User> Users { get; set; }
-    }
+{
+    public List<User> Users { get; set; }
+}
 
