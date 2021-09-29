@@ -29,9 +29,7 @@ namespace TextToSpeechTTV
         private string rewardName = "RewardType.None";
         //private string gcp = "false";
 
-        public TwitchBot()
-        {
-
+        public TwitchBot() {
             //Set up Config Informations
             config = new Config();
             maxWordLength = config.GetMaxCharacterLength();
@@ -69,8 +67,7 @@ namespace TextToSpeechTTV
         }
 
         private void PubSub_OnChannelPointsRewardRedeemed(object sender,
-            TwitchLib.PubSub.Events.OnChannelPointsRewardRedeemedArgs e)
-        {
+            TwitchLib.PubSub.Events.OnChannelPointsRewardRedeemedArgs e) {
             if (rewardName == "RewardType.None")
             {
                 return;
@@ -91,29 +88,25 @@ namespace TextToSpeechTTV
                 readOut ? $"{messageConnector} {newMessageEdited}" : $"{newMessageEdited}", readOut);
         }
 
-        private void Ps_OnPubSubServiceConnected(object sender, EventArgs e)
-        {
+        private void Ps_OnPubSubServiceConnected(object sender, EventArgs e) {
             pubSub.ListenToChannelPoints(config.GetChannelId());
             pubSub.SendTopics(config.GetAccessToken());
             Console.WriteLine("PubSub Service started running!");
         }
 
-        private void OnConnected(object sender, OnConnectedArgs e)
-        {
+        private void OnConnected(object sender, OnConnectedArgs e) {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Successfully connected!");
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
-        private void OnJoinedChannel(object sender, OnJoinedChannelArgs e)
-        {
+        private void OnJoinedChannel(object sender, OnJoinedChannelArgs e) {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Successfully joined Channel: {e.Channel}");
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
-        private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
-        {
+        private void OnMessageReceived(object sender, OnMessageReceivedArgs e) {
             speechWordHandler.LoadDefaultVoice();
             CommandHandler commandHandler = new CommandHandler();
 
@@ -149,7 +142,7 @@ namespace TextToSpeechTTV
 
             Console.WriteLine($"{e.ChatMessage.Username}:{e.ChatMessage.Message}");
 
-            if (speechWordHandler.CheckBlocked(e.ChatMessage.Username)) //Ignore blocked users
+            if (speechWordHandler.CheckUserBlocked(e.ChatMessage.Username)) //Ignore blocked users
                 return;
             if (e.ChatMessage.Message.StartsWith("!")) //Ignore Commands starting with !
                 return;
@@ -159,8 +152,7 @@ namespace TextToSpeechTTV
                 readOut ? $"{messageConnector} {newMessageEdited}" : $"{newMessageEdited}", readOut);
         }
 
-        private string CreateMessage(string message)
-        {
+        private string CreateMessage(string message) {
             //Check if URL is in Message
             Regex UrlMatch =
                 new Regex(

@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using Google.Cloud.TextToSpeech.V1;
 
 
-namespace TextToSpeechTTV
-{
+namespace TextToSpeechTTV {
 
 
-    class Config
-    {
+    class Config {
         //Path for every Config
         private readonly string creds = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "creds.txt");
         private readonly string options = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "options.txt");
@@ -22,21 +19,20 @@ namespace TextToSpeechTTV
         private readonly string foldername = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config");
         public List<string> voicelist;
         public TextToSpeechClient client;
+        public string[] optionsList;
+        public string[] credsList;
 
-        public Config()
-        {
+        public Config () {
             CreateConfig();
+            optionsList = File.ReadAllLines(options);
+            credsList = File.ReadAllLines(creds);
         }
 
-        public object AuthExplicit()
-        {
+        public object AuthExplicit () {
             System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "gcp.json"));
-            try
-            {
+            try {
                 client = TextToSpeechClient.Create();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Console.WriteLine($"Failed to initialise GCP TTS Client. Set GCP to 'false' in options.txt");
                 Console.WriteLine("Press any key to see the exception...");
                 Console.ReadKey();
@@ -49,8 +45,7 @@ namespace TextToSpeechTTV
 
             List<string> voices = new List<string>();
 
-            foreach (var voice in response.Voices)
-            {
+            foreach (var voice in response.Voices) {
                 Console.WriteLine($"{voice.Name} ({voice.SsmlGender}); Rate:{voice.NaturalSampleRateHertz} Language codes: {string.Join(", ", voice.LanguageCodes)}");
                 voices.Add(voice.Name);
             }
@@ -61,17 +56,14 @@ namespace TextToSpeechTTV
             return null;
         }
 
-        private void CreateConfig()
-        {
-            if (Directory.Exists(foldername))
-            {
-                if (GetGCP() != "false")
-                {
+        private void CreateConfig () {
+            if (Directory.Exists(foldername)) {
+                if (GetGCP() != "false") {
                     AuthExplicit();
                 }
                 return;
             }
-                
+
 
             if (!Directory.Exists(foldername))
                 Directory.CreateDirectory(foldername);
@@ -87,8 +79,7 @@ namespace TextToSpeechTTV
                 FillCredsFile();
         }
 
-        private void FillNewUsernamesExamples()
-        {
+        private void FillNewUsernamesExamples () {
             File.WriteAllLines(new_usernames, new string[]
             {
             @"{
@@ -111,8 +102,7 @@ namespace TextToSpeechTTV
 }"
             });
         }
-        private void FillBlocklistExamples()
-        {
+        private void FillBlocklistExamples () {
             File.WriteAllLines(blocklist, new string[]
             {
                 "nightbot",
@@ -122,8 +112,7 @@ namespace TextToSpeechTTV
                 "deepbot"
             });
         }
-        private void FillCredsFile()
-        {
+        private void FillCredsFile () {
             Console.Write("Please enter your Botname (or Username, if no Bot Account): ");
             string twitchId = Console.ReadLine();
             Console.Write("Please enter your oauth key. URL in Readme (oauth:...): ");
@@ -152,22 +141,18 @@ namespace TextToSpeechTTV
         }
 
 
-        private void FillOptionsFile()
-        {
+        private void FillOptionsFile () {
             Console.WriteLine("I've automatically set up the default options for the TTS.\n" +
                               "You can change those Settings in the options.txt file.");
             string rewardName = "";
-            while (true)
-            {
+            while (true) {
                 Console.Write("Do you want to bind TTS to a Channel Reward? Y / N: ");
                 string result = Console.ReadLine().ToLower();
-                if (result == "y")
-                {
+                if (result == "y") {
                     Console.Write("Please enter the Reward Title (e.g. TTS-Reward), case sensitive: ");
                     rewardName = Console.ReadLine();
                     break;
-                } else if (result == "n")
-                {
+                } else if (result == "n") {
                     Console.WriteLine("Alright! TTS will run on every message sent!");
                     rewardName = "RewardType.None";
                     break;
@@ -226,97 +211,84 @@ namespace TextToSpeechTTV
             Console.WriteLine("--------------------------------------------------------");
         }
 
-        public string GetUsername()
-        {
-            string id = File.ReadAllLines(creds)[1];
+        public string GetUsername () {
+            string id = credsList[1];
             return id;
         }
 
-        public string GetOAuth()
-        {
-            string password = File.ReadAllLines(creds)[3];
+        public string GetOAuth () {
+            string password = credsList[3];
             return password;
         }
 
-        public string GetChannel()
-        {
-            string channel = File.ReadAllLines(creds)[5];
+        public string GetChannel () {
+            string channel = credsList[5];
             return channel;
         }
 
         public string GetAccessToken () {
-            string accessToken = File.ReadAllLines(creds)[7];
+            string accessToken = credsList[7];
             return accessToken;
         }
 
-        public string GetChannelId()
-        {
-            string channelId = File.ReadAllLines(creds)[9];
+        public string GetChannelId () {
+            string channelId = credsList[9];
             return channelId;
         }
 
-        public bool ReadOutNames()
-        {
-            bool readOut = bool.Parse(File.ReadAllLines(options)[17]);
+        public bool ReadOutNames () {
+            bool readOut = bool.Parse(optionsList[17]);
             return readOut;
         }
 
         public double GetSpeakingRate () {
-            double speakingRate = double.Parse(File.ReadAllLines(options)[19]);
+            double speakingRate = double.Parse(optionsList[19]);
             return speakingRate;
         }
         public double GetSpeakingPitch () {
-            double speakingRate = double.Parse(File.ReadAllLines(options)[21]);
+            double speakingRate = double.Parse(optionsList[21]);
             return speakingRate;
         }
 
-        public string SetVoice()
-        {
-            string voice = File.ReadAllLines(options)[1];
+        public string SetVoice () {
+            string voice = optionsList[1];
             return voice;
         }
-        public string SetMessageConnector()
-        {
-            string say = File.ReadAllLines(options)[3];
+        public string SetMessageConnector () {
+            string say = optionsList[3];
             return say;
         }
 
-        public int GetMaxCharacterLength()
-        {
-            string wordLength = File.ReadAllLines(options)[5];
+        public int GetMaxCharacterLength () {
+            string wordLength = optionsList[5];
             int.TryParse(wordLength, out int result);
             return result;
         }
 
-        public string ReplaceSwearWord()
-        {
-            string antiswear = File.ReadAllLines(options)[7];
+        public string ReplaceSwearWord () {
+            string antiswear = optionsList[7];
             return antiswear;
         }
 
-        public string GetLongMessage()
-        {
-            string longMessage = File.ReadAllLines(options)[9];
+        public string GetLongMessage () {
+            string longMessage = optionsList[9];
             return longMessage;
         }
 
-        public string GetGCP()
-        {
-            string gcp = File.ReadAllLines(options)[11].ToLower();
-            string[] settings = {"true", "wavenet", "standard", "false"};
+        public string GetGCP () {
+            string gcp = optionsList[11].ToLower();
+            string[] settings = { "true", "wavenet", "standard", "false" };
             if (settings.Contains(gcp))
                 return gcp;
             Console.WriteLine("Couldn't get GCP Settings in Settings file!");
             throw new ArgumentException("Must be either true, false, wavenet, or standard");
         }
-        public string GetRewardName ()
-        {
-            string rewardName = File.ReadAllLines(options)[15];
+        public string GetRewardName () {
+            string rewardName = optionsList[15];
             return rewardName;
         }
 
-        public TextToSpeechClient GetGCPClient()
-        {
+        public TextToSpeechClient GetGCPClient () {
             return client;
         }
     }
