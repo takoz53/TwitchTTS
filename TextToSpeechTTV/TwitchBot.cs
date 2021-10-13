@@ -25,6 +25,7 @@ namespace TextToSpeechTTV
         private string antiswear = "beep";
         private string longMessage = "to be continued";
         private bool readOut = true;
+        private bool whiteList = false;
 
         private string rewardName = "RewardType.None";
         //private string gcp = "false";
@@ -39,6 +40,7 @@ namespace TextToSpeechTTV
             longMessage = config.GetLongMessage();
             readOut = config.ReadOutNames();
             rewardName = config.GetRewardName();
+            whiteList = config.IsWhiteListOnly();
             //Set up Speech Helper
             speechHelper = new SpeechHelper(voice, 0);
             speechWordHandler = new SpeechWordHandler();
@@ -78,11 +80,21 @@ namespace TextToSpeechTTV
             {
                 return;
             }
+            string username = e.RewardRedeemed.Redemption.User.Login;
+
+            if (whiteList) {
+                if (!speechWordHandler.CheckUserWhitelisted(username)) {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"{username} is not whitelisted. His message won't be read out!");
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    return;
+                }
+            }
 
             Console.Write("TTS Reward was Redeemed: ");
             var newMessageEdited = CreateMessage(e.RewardRedeemed.Redemption.UserInput);
             Console.WriteLine(newMessageEdited);
-            string username = e.RewardRedeemed.Redemption.User.Login;
+            
             speechWordHandler.LoadDefaultVoice();
             speechHelper.Speak_gcp(speechWordHandler.ContainsJsonUsername(username),
                 readOut ? $"{messageConnector} {newMessageEdited}" : $"{newMessageEdited}", readOut);
@@ -140,6 +152,14 @@ namespace TextToSpeechTTV
                 return;
             }
 
+            if (whiteList) {
+                if (!speechWordHandler.CheckUserWhitelisted(e.ChatMessage.Username)) {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"{e.ChatMessage.Username} is not whitelisted. His message won't be read out!");
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    return;
+                }
+            }
             Console.WriteLine($"{e.ChatMessage.Username}:{e.ChatMessage.Message}");
 
             if (speechWordHandler.CheckUserBlocked(e.ChatMessage.Username)) //Ignore blocked users

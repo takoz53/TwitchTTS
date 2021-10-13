@@ -11,10 +11,11 @@ namespace TextToSpeechTTV {
 
         private static string blockListLocation =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
-
+        private static string whiteListLocation = 
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "whitelist.txt");
         private static string options =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "options.txt");
-
+        
         public string defaultVoice;
         private List<string> badWords;
 
@@ -65,6 +66,11 @@ namespace TextToSpeechTTV {
 
         public bool CheckUserBlocked (string username) {
             var usernames = File.ReadAllLines(blockListLocation).ToList();
+            return usernames.Contains(username);
+        }
+
+        public bool CheckUserWhitelisted (string username) {
+            var usernames = File.ReadAllLines(whiteListLocation).ToList();
             return usernames.Contains(username);
         }
 

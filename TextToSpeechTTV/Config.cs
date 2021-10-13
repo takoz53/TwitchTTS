@@ -14,6 +14,7 @@ namespace TextToSpeechTTV {
         private readonly string creds = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "creds.txt");
         private readonly string options = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "options.txt");
         private readonly string blocklist = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "blocklist.txt");
+        private readonly string whitelist = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "whitelist.txt");
         private readonly string badwords = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "badwords.txt");
         private readonly string new_usernames = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "usernames.json");
         private readonly string voicelistfile = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config", "voicelist.txt");
@@ -72,6 +73,8 @@ namespace TextToSpeechTTV {
                 Directory.CreateDirectory(foldername);
             if (!File.Exists(badwords))
                 File.Create(badwords).Dispose();
+            if (!File.Exists(whitelist))
+                FillWhitelistExamples();
             if (!File.Exists(options))
                 FillOptionsFile();
             if (!File.Exists(blocklist))
@@ -81,7 +84,6 @@ namespace TextToSpeechTTV {
             if (!File.Exists(creds))
                 FillCredsFile();
         }
-
         private void FillNewUsernamesExamples () {
             File.WriteAllLines(new_usernames, new string[]
             {
@@ -112,7 +114,19 @@ namespace TextToSpeechTTV {
                 "moobot",
                 "phantombot",
                 "coebot",
-                "deepbot"
+                "deepbot",
+                "You can fill and save the blacklist without restarting the program or use !block user in chat."
+            });
+        }
+
+        private void FillWhitelistExamples () {
+            File.WriteAllLines(whitelist, new string[]
+            {
+                "somebot",
+                "yourself",
+                "yourfavouriteviewer",
+                "etc",
+                "You can fill and save the whitelist without restarting the program."
             });
         }
         private void FillCredsFile () {
@@ -170,7 +184,13 @@ namespace TextToSpeechTTV {
                 if (readOut == "y" || readOut == "n")
                     break;
             }
-
+            string whiteList = "";
+            while (true) {
+                Console.Write("Should the TTS only read out messages from Whitelist? Y/N:");
+                whiteList = Console.ReadLine().ToLower();
+                if (whiteList == "y" || whiteList == "n")
+                    break;
+            }
             double googleSpeakingRate;
             double googlePitch;
 
@@ -212,7 +232,10 @@ namespace TextToSpeechTTV {
                  "Google Speaking Speed:",
                  googleSpeakingRate.ToString(),
                  "Google Speaking Pitch:",
-                 googlePitch.ToString()
+                 googlePitch.ToString(),
+                 "Whitelist only?:",
+                 whiteList == "y" ? "true" : "false",
+
             });
             Console.WriteLine("--------------------------------------------------------");
         }
@@ -270,7 +293,10 @@ namespace TextToSpeechTTV {
             }
             return speakingPitch;
         }
-
+        public bool IsWhiteListOnly () {
+            bool whiteList = bool.Parse(optionsList[23]);
+            return whiteList;
+        }
         public string SetVoice () {
             string voice = optionsList[1];
             return voice;
