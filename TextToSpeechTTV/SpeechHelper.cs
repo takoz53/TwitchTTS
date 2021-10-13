@@ -31,8 +31,17 @@ namespace TextToSpeechTTV {
                 CreateSpeechSynthesizer();
                 Config config = new Config();
                 string gcpType = config.GetGCP();
-                googleSpeakingRate = config.GetSpeakingRate();
-                googlePitch = config.GetSpeakingPitch();
+                try {
+                    googleSpeakingRate = config.GetSpeakingRate();
+                    googlePitch = config.GetSpeakingPitch();
+                } catch (ArgumentException e) {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Press any Key to continue...");
+                    Console.ReadLine();
+                    Environment.Exit(0);
+                }
+
                 voicelist = config.voicelist;
                 if (voicelist == null) {
                     voicelist = new List<string>();
@@ -47,8 +56,9 @@ namespace TextToSpeechTTV {
                     }
                 }
 
-                Console.WriteLine(string.Join("\n", voicelist));
-                Console.WriteLine("Voicelist");
+                /*Console.WriteLine(string.Join("\n", voicelist));
+                Console.WriteLine("Voicelist");*/
+                Console.WriteLine("Voicelist.txt is available in Config Folder.");
 
             } catch {
                 Console.ForegroundColor = ConsoleColor.Red;

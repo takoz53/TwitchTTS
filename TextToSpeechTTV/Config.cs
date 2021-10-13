@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Google.Cloud.TextToSpeech.V1;
@@ -23,9 +24,11 @@ namespace TextToSpeechTTV {
         public string[] credsList;
 
         public Config () {
+            if (Directory.Exists(foldername)) {
+                optionsList = File.ReadAllLines(options);
+                credsList = File.ReadAllLines(creds);
+            }
             CreateConfig();
-            optionsList = File.ReadAllLines(options);
-            credsList = File.ReadAllLines(creds);
         }
 
         public object AuthExplicit () {
@@ -94,7 +97,7 @@ namespace TextToSpeechTTV {
     {
       ""name"": ""myaccount"",
       ""nick"": ""me"",
-      ""voice"": ""fr-CA-Wavenet-B""
+      ""voice"": ""fr-CA-Wavenet-B"",
       ""speakingSpeed:"" ""2"",
       ""speakingPitch:"" ""10""
     }
@@ -136,7 +139,8 @@ namespace TextToSpeechTTV {
                 "ChannelID:",
                 channelId
             });
-            Console.WriteLine("If anything doesn't seem to work out or changes, you can find this file in Config/creds.txt and edit it.");
+            Console.WriteLine("If anything doesn't seem to work out or changes, you can find this file in Config/creds.txt and edit it." +
+                "\nOptions can be changed in options.txt as well. Pitch & Speed are only available for Google TTS.");
             Console.WriteLine("--------------------------------------------------------");
         }
 
@@ -161,7 +165,7 @@ namespace TextToSpeechTTV {
 
             string readOut = "";
             while (true) {
-                Console.WriteLine("Should the TTS read out usernames? Y/N:");
+                Console.Write("Should the TTS read out usernames? Y/N:");
                 readOut = Console.ReadLine().ToLower();
                 if (readOut == "y" || readOut == "n")
                     break;
@@ -175,8 +179,10 @@ namespace TextToSpeechTTV {
                 string speakingRate = Console.ReadLine();
                 Console.Write("Please select the voice pitch (-20 to 20; 0 = Default Pitch):");
                 string speakingPitch = Console.ReadLine();
-                double.TryParse(speakingRate, out googleSpeakingRate);
-                double.TryParse(speakingPitch, out googlePitch);
+                speakingRate = speakingRate.Replace(",", ".");
+                speakingPitch = speakingPitch.Replace(",", ".");
+                double.TryParse(speakingRate, NumberStyles.Any, CultureInfo.InvariantCulture, out googleSpeakingRate);
+                double.TryParse(speakingPitch, NumberStyles.Any, CultureInfo.InvariantCulture, out googlePitch);
                 if ((googleSpeakingRate <= 4 || googleSpeakingRate >= 0.25)
                     && (googlePitch <= 20 || googlePitch >= -20)) {
                     break;
@@ -242,12 +248,27 @@ namespace TextToSpeechTTV {
         }
 
         public double GetSpeakingRate () {
-            double speakingRate = double.Parse(optionsList[19]);
+            string strRate = optionsList[19].Replace(",", ".");
+            bool parsable = double.TryParse(strRate, NumberStyles.Any, CultureInfo.InvariantCulture, out double speakingRate);
+            if (speakingRate > 4 || speakingRate < 0.25) {
+                throw new ArgumentException("Speaking Rate can't be higher than 4 or lower than 0.25!");
+            }
+            if (!parsable) {
+                throw new ArgumentException("Can't parse Speaking Rate!");
+            }
             return speakingRate;
         }
         public double GetSpeakingPitch () {
-            double speakingRate = double.Parse(optionsList[21]);
-            return speakingRate;
+            string strPitch = optionsList[21].Replace(",", ".");
+            bool parsable = double.TryParse(strPitch, NumberStyles.Any, CultureInfo.InvariantCulture, out double speakingPitch);
+
+            if (speakingPitch > 20 || speakingPitch < -20) {
+                throw new ArgumentException("Speaking Pitch can't be higher than 20 or lower than -20!");
+            }
+            if (!parsable) {
+                throw new ArgumentException("Can't parse Speaking Pitch!");
+            }
+            return speakingPitch;
         }
 
         public string SetVoice () {
