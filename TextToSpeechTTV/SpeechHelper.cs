@@ -7,17 +7,19 @@ using System.IO;
 using NAudio.Wave;
 using System.Threading;
 using System.Threading.Tasks;
-
+using System.Globalization;
 
 namespace TextToSpeechTTV {
     class SpeechHelper {
         private int rate;
+        private bool randomVoice;
         private string ttsName;
         private double googleSpeakingRate;
         private double googlePitch;
         private SpeechSynthesizer speechSynthesizer;
         private TextToSpeechClient client;
-        private List<string> voicelist;
+        private List<string> voiceList;
+        private List<string> voiceListCulture;
 
         private WaveOutEvent waveOut;
         //private List<string> voicelistWavenet;
@@ -32,8 +34,10 @@ namespace TextToSpeechTTV {
                 Config config = new Config();
                 string gcpType = config.GetGCP();
                 try {
-                    googleSpeakingRate = config.GetSpeakingRate();
-                    googlePitch = config.GetSpeakingPitch();
+                    if (!randomVoice) {
+                        googleSpeakingRate = config.GetSpeakingRate();
+                        googlePitch = config.GetSpeakingPitch();
+                    }
                 } catch (ArgumentException e) {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(e.Message);
@@ -42,23 +46,31 @@ namespace TextToSpeechTTV {
                     Environment.Exit(0);
                 }
 
-                voicelist = config.voicelist;
-                if (voicelist == null) {
-                    voicelist = new List<string>();
+                voiceList = config.voicelist;
+                if (voiceList == null) {
+                    voiceList = new List<string>();
                 }
 
                 if (gcpType != "false") {
                     client = config.GetGCPClient();
                     if (gcpType == "standard") {
-                        voicelist = voicelist.FindAll(delegate (string s) { return s.Contains("Standard"); });
+                        voiceList = voiceList.FindAll(delegate (string s) { return s.Contains("Standard"); });
                     } else if (gcpType == "wavenet") {
-                        voicelist = voicelist.FindAll(delegate (string s) { return s.Contains("Wavenet"); });
+                        voiceList = voiceList.FindAll(delegate (string s) { return s.Contains("Wavenet"); });
                     }
                 }
 
-                /*Console.WriteLine(string.Join("\n", voicelist));
-                Console.WriteLine("Voicelist");*/
                 Console.WriteLine("Voicelist.txt is available in Config Folder.");
+
+                //Returns: en-EN, we only want "en"
+                string cultureFirst = CultureInfo.CurrentCulture.Name.Split('-')[0];
+                voiceListCulture = new List<string>();
+
+                foreach (string voiceListItem in voiceList) {
+                    if (voiceListItem.StartsWith(cultureFirst)) {
+                        voiceListCulture.Add(voiceListItem);
+                    }
+                }
 
             } catch {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -109,7 +121,7 @@ namespace TextToSpeechTTV {
             }
 
             //Fallback on Microsoft
-            if (voicelist?.Any() != true || user.Voice.ToLower() == "microsoft") {
+            if (voiceList?.Any() != true || user.Voice.ToLower() == "microsoft") {
                 Speak(user, text);
                 return;
             }
@@ -122,23 +134,31 @@ namespace TextToSpeechTTV {
             // Build the voice request, select the language code ("en-US"),
             // and the SSML voice gender ("neutral").
 
-            Random r = new Random();
-            int randName = r.Next(voicelist.Count);
+                Random r = new Random();
+            int randName = r.Next(voiceList.Count);
+            // Boundaries are -20, 20, but makes it sound awful.
+            int randPitch = r.Next(-10, 10);
             switch (userData.Voice.ToLower()) {
-                case "random-per-user":
-                    userData.Voice = voicelist[randName];
-                    voiceName = voicelist[randName];
-                    break;
                 case "random":
-                    voiceName = voicelist[randName];
+                    voiceName = voiceList[randName];
+                    randomVoice = true;
+                    googleSpeakingRate = 1;
+                    googlePitch = randPitch;
+                    break;
+                case "random-pc-language":
+                    randomVoice = true;
+                    int randNameCulture = r.Next(voiceListCulture.Count);
+                    voiceName = voiceListCulture[randNameCulture];
+                    googleSpeakingRate = 1;
+                    googlePitch = randPitch;
                     break;
                 default: {
-                        if (voicelist.Any(n => n.ToLower() == user.Voice.ToLower())) {
+                        if (voiceList.Any(n => n.ToLower() == user.Voice.ToLower())) {
                             voiceName = userData.Voice;
                         } else {
                             voiceName = "en-AU-Standard-B";
                         }
-
+                        randomVoice = false;
                         break;
                     }
             }
