@@ -83,6 +83,8 @@ namespace TextToSpeechTTV {
                 FillNewUsernamesExamples();
             if (!File.Exists(creds))
                 FillCredsFile();
+            optionsList = File.ReadAllLines(options);
+            credsList = File.ReadAllLines(creds);
         }
         private void FillNewUsernamesExamples () {
             File.WriteAllLines(new_usernames, new string[]
@@ -93,15 +95,15 @@ namespace TextToSpeechTTV {
       ""name"": ""youraccount"",
       ""nick"": ""you"",
       ""voice"": ""random"",
-      ""speakingSpeed:"" ""1"",
-      ""speakingPitch:"" ""0""
+      ""speakingSpeed"": ""1"",
+      ""speakingPitch"": ""0""
     },
     {
       ""name"": ""myaccount"",
       ""nick"": ""me"",
       ""voice"": ""fr-CA-Wavenet-B"",
-      ""speakingSpeed:"" ""2"",
-      ""speakingPitch:"" ""10""
+      ""speakingSpeed"": ""2"",
+      ""speakingPitch"": ""10""
     }
   ]
 }"
