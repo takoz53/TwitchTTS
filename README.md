@@ -1,7 +1,7 @@
 # TwitchTTS with Channel Awards
 A TTS client for Twitch chat, integrated with GCP Text-to-speech (500 voices from 40+ languages).
 
-### Updated on 12.09.2021
+### Updated on 13.10.2021
 ## Download at [Releases](https://github.com/takoz53/TwitchTTS/releases)
 ## How to set up as developer?
 You'll (maybe?) need to add System.Speech available on your System as Reference
