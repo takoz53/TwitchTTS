@@ -20,10 +20,11 @@ You'll also need TwitchLib and Google.Cloud.TextToSpeech.V1 available on NuGet a
     5. Set the channel, where it should connect to (**all lowercase!**)
     6. Create an [Access Token](https://twitchtokengenerator.com/) with Custom Scope Token. Tick following:
         1. channel:read:redemptions
-    7. Hit GENERATE TOKEN.
+    7. Hit **GENERATE TOKEN.**
     8. Insert your Access Token.
-    9. Get your [Channel ID](https://www.streamweasels.com/support/convert-twitch-username-to-user-id/)
-    10. Insert your Twitch/Channel ID.
+    9. Get your ~~[Channel ID](https://www.streamweasels.com/support/convert-twitch-username-to-user-id/).~~ This value is numbers only.
+        1. The website went down, so you need to find a way to get your ChannelID. For me, [this chrome add-on](https://chrome.google.com/webstore/detail/twitch-username-and-user/laonpoebfalkjijglbjbnkfndibbcoon/related) works just fine.
+    11. Insert your Twitch/Channel ID.
 1. Everything should be working now.
 2. Don't forget to set up a bad words filter or you might get banned if somebody wants to be funny.
 3. I don't take responsibility for whatever happens in your stream.
@@ -37,11 +38,16 @@ Try out the TTS here: https://cloud.google.com/text-to-speech
 I'd recommend setting up a budget of $0 just in case.
 
 ### Create credentials
-
-1. In the menu on the left: APIs & Services -> Select login data
-1. Create a service account key with the button 'Create login data'.
-1. Enter service account name, select role project-> owner, key type: JSON
-1. Save the file as gcp.json
+1. Search for Text To Speech in your Console.
+2. Enable the API.
+3. Go to Manage and on the menu left, choose Credientials.
+4. Create new Credientials for a Service Account.
+7. Enter service account name (anything is just fine), select role project-> owner on step 2. Skip step 3
+8. Click on the newly created Account and navigate to Keys.
+9. Add a Key (Create New) and select JSON.
+10. Save the file as gcp.json and put it in your Config folder.
+11. Enable GCP in options.txt and start the program once to create voicelist.txt.
+12. Ur good to go.
 
 ### Activate the text-to-speech API
 
