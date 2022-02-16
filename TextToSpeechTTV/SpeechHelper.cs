@@ -138,25 +138,30 @@ namespace TextToSpeechTTV {
             int randName = r.Next(voiceList.Count);
             // Boundaries are -20, 20, but makes it sound awful.
             int randPitch = r.Next(-10, 10);
+            Config cfg = new Config();
             switch (userData.Voice.ToLower()) {
                 case "random":
                     voiceName = voiceList[randName];
                     randomVoice = true;
-                    googleSpeakingRate = 1;
+                    googleSpeakingRate = cfg.GetSpeakingRate();
                     googlePitch = randPitch;
                     break;
                 case "random-pc-language":
                     randomVoice = true;
                     int randNameCulture = r.Next(voiceListCulture.Count);
                     voiceName = voiceListCulture[randNameCulture];
-                    googleSpeakingRate = 1;
+                    googleSpeakingRate = cfg.GetSpeakingRate();
                     googlePitch = randPitch;
                     break;
                 default: {
                         if (voiceList.Any(n => n.ToLower() == user.Voice.ToLower())) {
                             voiceName = userData.Voice;
+                            googlePitch = userData.SpeakingPitch;
+                            googleSpeakingRate = userData.SpeakingSpeed;
                         } else {
                             voiceName = "en-AU-Standard-B";
+                            googlePitch = cfg.GetSpeakingPitch();
+                            googleSpeakingRate = cfg.GetSpeakingRate();
                         }
                         randomVoice = false;
                         break;

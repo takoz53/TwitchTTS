@@ -37,9 +37,7 @@ namespace TextToSpeechTTV {
             try {
                 client = TextToSpeechClient.Create();
             } catch (Exception e) {
-                Console.WriteLine($"Failed to initialise GCP TTS Client. Set GCP to 'false' in options.txt");
-                Console.WriteLine("Press any key to see the exception...");
-                Console.ReadKey();
+                Console.WriteLine($"Failed to initialise GCP TTS Client. Set GCP to 'false' in options.txt\n-----------\n");
                 Console.WriteLine(e);
                 Console.WriteLine("Press any key to quit...");
                 Console.ReadKey();
