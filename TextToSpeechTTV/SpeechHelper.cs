@@ -20,6 +20,7 @@ namespace TextToSpeechTTV {
         private TextToSpeechClient client;
         private List<string> voiceList;
         private List<string> voiceListCulture;
+        private Config config;
 
         private WaveOutEvent waveOut;
         //private List<string> voicelistWavenet;
@@ -31,7 +32,7 @@ namespace TextToSpeechTTV {
 
             try {
                 CreateSpeechSynthesizer();
-                Config config = new Config();
+                config = new Config();
                 string gcpType = config.GetGCP();
                 try {
                     if (!randomVoice) {
@@ -138,19 +139,18 @@ namespace TextToSpeechTTV {
             int randName = r.Next(voiceList.Count);
             // Boundaries are -20, 20, but makes it sound awful.
             int randPitch = r.Next(-10, 10);
-            Config cfg = new Config();
             switch (userData.Voice.ToLower()) {
                 case "random":
                     voiceName = voiceList[randName];
                     randomVoice = true;
-                    googleSpeakingRate = cfg.GetSpeakingRate();
+                    googleSpeakingRate = this.config.GetSpeakingRate();
                     googlePitch = randPitch;
                     break;
                 case "random-pc-language":
                     randomVoice = true;
                     int randNameCulture = r.Next(voiceListCulture.Count);
                     voiceName = voiceListCulture[randNameCulture];
-                    googleSpeakingRate = cfg.GetSpeakingRate();
+                    googleSpeakingRate = this.config.GetSpeakingRate();
                     googlePitch = randPitch;
                     break;
                 default: {
@@ -160,8 +160,8 @@ namespace TextToSpeechTTV {
                             googleSpeakingRate = userData.SpeakingSpeed;
                         } else {
                             voiceName = "en-AU-Standard-B";
-                            googlePitch = cfg.GetSpeakingPitch();
-                            googleSpeakingRate = cfg.GetSpeakingRate();
+                            googlePitch = this.config.GetSpeakingPitch();
+                            googleSpeakingRate = this.config.GetSpeakingRate();
                         }
                         randomVoice = false;
                         break;
