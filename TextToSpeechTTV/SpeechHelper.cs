@@ -5,6 +5,7 @@ using System.Speech.Synthesis;
 using Google.Cloud.TextToSpeech.V1;
 using System.IO;
 using NAudio.Wave;
+using NAudio.CoreAudioApi;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Globalization;
@@ -73,6 +74,15 @@ namespace TextToSpeechTTV {
                     }
                 }
 
+                // Prod windows to actually initialize default device correctly
+                using (var mmdEnumerator = new MMDeviceEnumerator())
+                using (var mmDevice = mmdEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia))
+                using (var outDevice = new WasapiOut(mmDevice, AudioClientShareMode.Shared, false, 100))
+                {
+                    outDevice.Init(new SilenceProvider(new WaveFormat(48000, 16, 1)));
+                    outDevice.Play();
+                }
+
             } catch {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("TTS Name does not exist. TTS will NOT work.");
@@ -84,7 +94,6 @@ namespace TextToSpeechTTV {
             speechSynthesizer = new SpeechSynthesizer {
                 Rate = rate
             };
-            speechSynthesizer.SetOutputToDefaultAudioDevice();
             speechSynthesizer.SelectVoice(ttsName);
         }
 
@@ -110,7 +119,28 @@ namespace TextToSpeechTTV {
 
         public void Speak (User user, string text) {
             Prompt prompt = new Prompt($"{user.Nick} {text}");
-            speechSynthesizer.Speak(prompt);
+
+            using (var stream = new MemoryStream())
+            using (var mmdEnumerator = new MMDeviceEnumerator())
+            using (var mmDevice = mmdEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia))
+            {
+                speechSynthesizer.SetOutputToWaveStream(stream);
+                speechSynthesizer.Speak(prompt);
+                stream.Flush();
+                stream.Seek(0, SeekOrigin.Begin);
+
+                using (var outDevice = new WasapiOut(mmDevice, AudioClientShareMode.Shared, false, 100))
+                using (var waveStream = new RawSourceWaveStream(stream, new WaveFormat(11025, 16, 2)))
+                {
+
+                    outDevice.Init(waveStream);
+                    outDevice.Play();
+                    while (outDevice.PlaybackState == PlaybackState.Playing)
+                    {
+                        Thread.Sleep(1000);
+                    }
+                }
+            }
         }
 
         public void Speak_gcp (User user, string text, bool readOut) {
